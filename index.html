@@ -72,28 +72,28 @@ function teacher(){
  <div class="tabs"><button id="t-g" onclick="tab('g')">Trò chơi</button><button id="t-t" onclick="tab('t')">Bài kiểm tra</button><button id="t-r" onclick="tab('r')">Kết quả</button><button id="t-d" onclick="tab('d')">Tài liệu SGK</button></div>
  <p class="mu">Học sinh tự nhập họ tên và lớp khi quét QR hoặc nhập mã, không cần tạo danh sách lớp.</p>
  <div id="pane"></div>`;
- tab('g');
+ loadDocs().catch(()=>{}).then(()=>tab('g'));
 }
 function tab(t){['g','t','r','d'].forEach(x=>$('#t-'+x).className=x==t?'on':'');
  const base=`<label>Link trang này (dán link artifact để QR đúng)</label><input id="base" value="${esc((()=>{try{return localStorage.base}catch(e){}})()||location.href.split('#')[0])}">`;
  const gr=`<div class="row"><div><label>Khối</label><select id="gr" onchange="gch()"><option>10</option><option selected>11</option><option>12</option></select></div></div>`;
  if(t=='g')$('#pane').innerHTML=`<div class="card"><h2>Tạo trò chơi Khởi động</h2>${gr}
- <label>Bài dạy</label><select id="gl">${LES.map((l,i)=>`<option value="${i}">${l}</option>`).join('')}</select><input id="gl2" style="display:none" placeholder="Nhập tên bài (chưa có SGK khối này trong tài liệu)">
+ <label>Bài dạy</label><select id="gl"></select><input id="gl2" style="display:none" placeholder="Nhập tên bài (chưa có SGK khối này trong tài liệu)">
  <label>Hình thức</label><select id="gm" onchange="gmch()"><option value="ca">Cá nhân (1 trò chơi)</option><option value="nhom">Nhóm (nhiều trò chơi)</option></select>
  <label>Trò chơi</label><div id="gt">${Object.entries(GT).map(([k,v],i)=>`<label><input type="radio" name="gt" value="${k}" ${i?'':'checked'}> ${v}</label>`).join('')}</div>
  <div class="row"><div><label>Số nhóm (nếu chơi nhóm)</label><input id="gn" type="number" value="4" min="2" max="12"></div><div><label>Giới hạn thời gian (phút)</label><input id="gx" type="number" value="5" min="1"></div><div><label>Số câu mỗi trò</label><input id="gq" type="number" value="5" min="3" max="10"></div></div><label>Nguồn SGK (tùy chọn)</label><select id="src"><option value="">— không dùng —</option></select><p class="mu">Chọn tài liệu ở tab Tài liệu SGK để AI bám sát nội dung.</p><label>Liên kết kèm theo (mỗi dòng: Tên | https://...)</label><textarea id="lk" rows="3" placeholder="Video bài học | https://youtube.com/..."></textarea>${base}
  <p><button onclick="mkGame()" id="gb">Tạo bằng AI và lấy link / QR</button></p><div id="share"></div></div>`;
  if(t=='t')$('#pane').innerHTML=`<div class="card"><h2>Tạo đề kiểm tra</h2>${gr}
  <label>Ma trận có sẵn</label><select id="pm" onchange="pre()"><option value="">Tự chọn</option><option value="a">Thường xuyên – 20 phút</option><option value="b">Giữa kỳ – 45 phút</option><option value="c">Cuối kỳ – 45 phút</option></select>
- <label>Bài kiểm tra (chọn một hoặc nhiều bài)</label><div class="lst" id="tl" onchange="mtx()">${LES.map((l,i)=>`<label><input type="checkbox" value="${i}"> ${l}</label>`).join('')}</div><input id="tl2" oninput="mtx()" style="display:none" placeholder="Nhập tên các bài (khối này chưa có SGK trong tài liệu)">
+ <label>Bài kiểm tra (chọn một hoặc nhiều bài)</label><div class="lst" id="tl" onchange="mtx()"></div><input id="tl2" oninput="mtx()" style="display:none" placeholder="Nhập tên các bài (khối này chưa có SGK trong tài liệu)">
  <h2>Ma trận số câu theo từng bài, dạng câu hỏi và mức độ</h2><div id="mx"></div><p id="mt" class="mu"></p><div class="row"><div><label>Thời gian (phút)</label><input id="tm" type="number" value="20" min="5"></div></div><label>Nguồn SGK (tùy chọn)</label><select id="src"><option value="">— không dùng —</option></select><p class="mu">Chọn tài liệu ở tab Tài liệu SGK để AI bám sát nội dung.</p><label>Liên kết kèm theo (mỗi dòng: Tên | https://...)</label><textarea id="lk" rows="3" placeholder="Google Form | https://forms.gle/..."></textarea>${base}
  <p><button onclick="mkTest()" id="tb">Tạo đề bằng AI</button></p><div id="share"></div></div>`;
- if(t=='t')mtx();if(t=='g'||t=='t')fillSrc();if(t=='d')docsTab();if(t=='r'){$('#pane').innerHTML='<div class="card"><h2>Kết quả và thống kê</h2><label>Chọn mã</label><select id="rc" onchange="loadRes()"><option value="">Đang tải…</option></select><div id="rs"></div></div>';codes()}
+ if(t=='t')mtx();if(t=='g'||t=='t'){renderLes();fillSrc()}if(t=='d')docsTab();if(t=='r'){$('#pane').innerHTML='<div class="card"><h2>Kết quả và thống kê</h2><label>Chọn mã</label><select id="rc" onchange="loadRes()"><option value="">Đang tải…</option></select><div id="rs"></div></div>';codes()}
 }
-const gch=()=>{const o=$('#gr').value!='11';['gl','tl'].forEach(x=>$('#'+x)&&($('#'+x).style.display=o?'none':''));['gl2','tl2'].forEach(x=>$('#'+x)&&($('#'+x).style.display=o?'':'none'));window.mtx&&mtx()};
+const gch=()=>{renderLes();window.mtx&&mtx()};
 function gmch(){const g=$('#gm').value=='nhom';$('#gt').innerHTML=Object.entries(GT).map(([k,v],i)=>`<label><input type="${g?'checkbox':'radio'}" name="gt" value="${k}" ${g||!i?'checked':''}> ${v}</label>`).join('')}
 const TY={mc:'Nhiều lựa chọn',tf:'Đúng – sai',sa:'Trả lời ngắn',es:'Tự luận'};
-function selLes(){if($('#gr').value=='11')return [...document.querySelectorAll('#tl input:checked')].map(x=>({id:x.value,n:LES[+x.value]}));const v=$('#tl2').value.trim();return v?[{id:'x',n:v}]:[]}
+function selLes(){const c=[...document.querySelectorAll('#tl input:checked')];if(LI.length)return c.map(x=>({id:LI[+x.value].id,n:LI[+x.value].n}));const v=$('#tl2').value.trim();return v?[{id:'x',n:v}]:[]}
 function mtx(){if(!$('#mx'))return;const old={};document.querySelectorAll('#mx input').forEach(i=>old[i.id]=i.value);const L=selLes();
  $('#mx').innerHTML=L.length?L.map(l=>`<div class="card" style="margin:8px 0"><b>${esc(l.n)}</b><div class="wrap"><table><tr><th>Dạng câu hỏi</th>${Object.values(LV).map(v=>`<th>${v}</th>`).join('')}<th>Cộng</th></tr>${Object.entries(TY).map(([t,tn])=>`<tr><td>${tn}</td>${Object.keys(LV).map(k=>{const id=`m_${l.id}_${t}_${k}`;return `<td><input id="${id}" type="number" min="0" value="${old[id]||0}" oninput="msum()"></td>`}).join('')}<td class="rs">0</td></tr>`).join('')}</table></div></div>`).join(''):'<p class="mu">Chọn ít nhất một bài để nhập số câu theo mức độ.</p>';msum()}
 function msum(){let tot=0;document.querySelectorAll('#mx tr').forEach(tr=>{const i=tr.querySelectorAll('input');if(!i.length)return;const s=[...i].reduce((a,b)=>a+(+b.value||0),0);tr.querySelector('.rs').textContent=s;tot+=s});$('#mt').textContent='Tổng số câu: '+tot}
@@ -106,7 +106,7 @@ function share(code,extra=''){const b=$('#base').value.replace(/#.*/,'');try{loc
 async function ai(p){const{data,error}=await SB.functions.invoke('generate',{body:{prompt:p+await srcText()}});if(error)throw error;return data}
 async function mkGame(){
  const b=$('#gb');b.disabled=true;b.textContent='AI đang soạn…';
- try{const grade=$('#gr').value,les=grade=='11'?LES[+$('#gl').value]:$('#gl2').value,mode=$('#gm').value,types=[...document.querySelectorAll('[name=gt]:checked')].map(x=>x.value),n=+$('#gq').value;
+ try{const grade=$('#gr').value,les=LI.length?LI[+$('#gl').value].n:$('#gl2').value,mode=$('#gm').value,types=[...document.querySelectorAll('[name=gt]:checked')].map(x=>x.value),n=+$('#gq').value;
  if(!les||!types.length)throw{message:'Hãy chọn bài và trò chơi'};
  const q=await ai(`Bạn là giáo viên Tin học THPT. Soạn câu hỏi trò chơi Khởi động cho Tin học ${grade} (SGK Kết nối tri thức với cuộc sống), ${les}. Vui nhộn, bám mục tiêu bài. Chỉ trả JSON dạng {"mc":[{"q":"","o":["A","B","C","D"],"a":0}],"tf":[{"q":"","a":true}],"voice":[{"q":"câu hỏi ngắn có đáp án là một thuật ngữ","k":["thuật ngữ chấp nhận được"]}],"fill":[{"q":"câu có chỗ trống ____","k":["đáp án"]}],"scr":[{"q":"gợi ý nghĩa của từ","k":["TỪ KHOÁ không quá 12 chữ cái"]}],"match":[{"q":"Ghép khái niệm với mô tả","p":[["khái niệm","mô tả ngắn"]]}],"order":[{"q":"Sắp xếp các bước","s":["bước 1","bước 2","bước 3","bước 4"]}]}. Mỗi loại ${n} câu cho các loại: ${types.join(', ')} (riêng match và order mỗi câu có đúng 4 mục); loại khác để mảng rỗng. a của mc là chỉ số 0-3.`);
  const ng=mode=='nhom'?+$('#gn').value:0;
@@ -141,7 +141,15 @@ async function loadRes(){const c=$('#rc').value;if(!c)return;const rs=(await col
 async function dlCsv(c){dl('ket-qua-'+c+'.csv','\ufeffHọ tên,Lớp,Nhóm,Điểm\n'+RS.map(r=>[cv(r.name),cv(r.cls),cv(r.group),r.score].join(',')).join('\n'))}
 let PF=null,EDIT=null,DOCS=[];
 async function fillSrc(){const s=$('#src');if(!s)return;const{data}=await SB.from('docs').select('id,title,grade').order('title');(data||[]).forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=`${d.title} (Khối ${d.grade})`;s.appendChild(o)})}
-async function srcText(){const s=$('#src');if(!s||!s.value)return '';const{data}=await SB.from('docs').select('title,content').eq('id',s.value).single();return data&&data.content?`\n\nTÀI LIỆU SGK THAM KHẢO "${data.title}" (bám sát nội dung này, không bịa ngoài tài liệu):\n`+data.content.slice(0,20000):''}
+let LDOCS=[],LI=[];
+async function loadDocs(){const{data}=await SB.from('docs').select('id,title,grade').order('title');LDOCS=data||[]}
+function lessonItems(g){const it=LDOCS.filter(d=>d.grade==g).map(d=>({id:'d'+d.id,n:d.title,doc:d.id}));if(g=='11')LES.forEach((n,i)=>{if(!it.some(x=>norm(x.n)==norm(n)))it.push({id:String(i),n})});return it}
+function renderLes(){const g=$('#gr').value;LI=lessonItems(g);
+ const gl=$('#gl');if(gl)gl.innerHTML=LI.map((x,i)=>`<option value="${i}">${esc(x.n)}</option>`).join('');
+ const tl=$('#tl');if(tl)tl.innerHTML=LI.map((x,i)=>`<label><input type="checkbox" value="${i}"> ${esc(x.n)}</label>`).join('');
+ const none=!LI.length;[['gl','gl2'],['tl','tl2']].forEach(([a,b])=>{$('#'+a)&&($('#'+a).style.display=none?'none':'');$('#'+b)&&($('#'+b).style.display=none?'':'none')})}
+const pickDocs=()=>{const s=$('#src');if(s&&s.value)return[s.value];if($('#gl')&&LI[+$('#gl').value])return[LI[+$('#gl').value].doc];if($('#tl'))return selLes().map(l=>(LI.find(x=>x.id==l.id)||{}).doc);return[]};
+async function srcText(){const ids=[...new Set(pickDocs().filter(Boolean))];if(!ids.length)return '';const{data}=await SB.from('docs').select('title,content').in('id',ids);const t=(data||[]).filter(d=>d.content).map(d=>`### ${d.title}\n${d.content}`).join('\n\n').slice(0,24000);return t?'\n\nTÀI LIỆU SGK THAM KHẢO (bám sát nội dung này, không bịa ngoài tài liệu):\n'+t:''}
 function docsTab(){$('#pane').innerHTML='<div class="card"><h2>Quản lý tài liệu SGK</h2><div id="dform"></div></div><div class="card"><div id="dlist" class="wrap"></div></div>';dform();dlist()}
 function dform(d){EDIT=d?d.id:null;PF=null;$('#dform').innerHTML=`<label>Tên tài liệu</label><input id="dt" maxlength="200" value="${esc(d&&d.title)}" placeholder="Bài 11. Cơ sở dữ liệu"><div class="row"><div><label>Khối</label><select id="dg">${['10','11','12'].map(g=>`<option ${(d?d.grade==g:g=='11')?'selected':''}>${g}</option>`).join('')}</select></div><div><label>Tệp .md / .txt / .pdf${d?' (bỏ trống nếu giữ tệp cũ)':''}</label><input id="df" type="file" accept=".md,.markdown,.txt,.pdf" onchange="pick(this.files[0])"></div></div><label>Nội dung văn bản (AI dùng phần này; có thể dán hoặc sửa)</label><textarea id="dc" rows="8">${esc(d&&d.content)}</textarea><p><button onclick="saveDoc()">${d?'Lưu thay đổi':'Thêm tài liệu'}</button> ${d?'<button class="alt" onclick="dform()">Hủy</button>':''} <span id="dm" class="mu"></span></p>`}
 async function pdfText(f){if(!window.pdfjsLib){await new Promise((ok,no)=>{const x=document.createElement('script');x.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';x.onload=ok;x.onerror=no;document.head.appendChild(x)});const w=await(await fetch('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js')).text();pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([w],{type:'text/javascript'}))}
@@ -157,13 +165,13 @@ async function saveDoc(){const title=$('#dt').value.trim(),m=$('#dm');if(!title)
   if(PF){const pdf=/\.pdf$/i.test(PF.name);row.kind=pdf?'pdf':'md';row.path=null;
    if(pdf){const{data:{user}}=await SB.auth.getUser(),path=user.id+'/'+Date.now()+'.pdf',{error}=await SB.storage.from('sgk').upload(path,PF,{contentType:'application/pdf'});if(error)throw error;row.path=path}
    if(old&&old.path)await SB.storage.from('sgk').remove([old.path])}
-  const{error}=EDIT?await SB.from('docs').update(row).eq('id',EDIT):await SB.from('docs').insert(row);if(error)throw error;dform();dlist()}
+  const{error}=EDIT?await SB.from('docs').update(row).eq('id',EDIT):await SB.from('docs').insert(row);if(error)throw error;await loadDocs();dform();dlist()}
  catch(e){m.textContent='Lỗi: '+(e.message||e)}}
 async function dlist(){const{data,error}=await SB.from('docs').select('id,title,grade,kind,path').order('created_at',{ascending:false});if(error){$('#dlist').innerHTML='<p class="err">'+esc(error.message)+'</p>';return}DOCS=data;
  $('#dlist').innerHTML=data.length?`<table><tr><th>Tên</th><th>Khối</th><th>Loại</th><th></th></tr>${data.map(d=>`<tr><td>${esc(d.title)}</td><td>${esc(d.grade)}</td><td>${esc(d.kind).toUpperCase()}</td><td><button class="alt" onclick="editDoc('${d.id}')">Sửa</button> ${d.path?`<button class="alt" onclick="viewDoc('${d.id}')">Xem PDF</button> `:''}<button class="alt" onclick="delDoc('${d.id}')">Xóa</button></td></tr>`).join('')}</table>`:'<p class="mu">Chưa có tài liệu nào. Hãy thêm ở phía trên.</p>'}
 async function editDoc(id){const{data}=await SB.from('docs').select('*').eq('id',id).single();if(data){dform(data);scrollTo(0,0)}}
 async function viewDoc(id){const d=DOCS.find(x=>x.id==id),{data}=await SB.storage.from('sgk').createSignedUrl(d.path,120);if(data)window.open(data.signedUrl,'_blank','noopener')}
-async function delDoc(id){const d=DOCS.find(x=>x.id==id);if(!confirm('Xóa tài liệu "'+d.title+'"?'))return;if(d.path)await SB.storage.from('sgk').remove([d.path]);await SB.from('docs').delete().eq('id',id);dlist()}
+async function delDoc(id){const d=DOCS.find(x=>x.id==id);if(!confirm('Xóa tài liệu "'+d.title+'"?'))return;if(d.path)await SB.storage.from('sgk').remove([d.path]);await SB.from('docs').delete().eq('id',id);await loadDocs();dlist()}
 /* ---------- HỌC SINH ---------- */
 function student(code){
  A().innerHTML=`<h1>Vào chơi / làm bài</h1><div class="card"><label>Mã tham gia</label><input id="jc" value="${esc(code)}" autocomplete="off"><label>Họ và tên của em</label><input id="jn" maxlength="60" autocomplete="name"><label>Lớp</label><input id="jl" maxlength="20" placeholder="Ví dụ: 11A1"><label>Nhóm (chỉ chọn khi giáo viên yêu cầu chơi nhóm)</label><select id="jg"><option value="">— không chọn —</option>${[1,2,3,4,5,6,7,8,9,10,11,12].map(i=>`<option>Nhóm ${i}</option>`).join('')}</select><p><button onclick="join()">Vào</button></p><p id="jm" class="err"></p></div>`}
