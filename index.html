@@ -162,6 +162,11 @@ function wordTest(d){let i=0;const body=d.qs.map(q=>{i++;let s=`<p><b>Câu ${i}.
  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><style>body{font-family:'Times New Roman';font-size:13pt}h1{text-align:center;font-size:16pt}.o{margin:0 0 0 28pt}td,th{border:1px solid #000;padding:4pt}table{border-collapse:collapse}</style></head><body><h1>ĐỀ KIỂM TRA TIN HỌC ${esc(d.grade||'')}</h1><p style="text-align:center">Nội dung: ${esc(d.les)}<br>Thời gian: ${esc(d.time)} phút · Họ và tên: ………………………… Lớp: ………</p>${body}<br style="page-break-before:always" clear="all"><h1>ĐÁP ÁN</h1><table><tr><th>Câu</th><th>Đáp án</th></tr>${ans}</table></body></html>`}
 const dlDoc=()=>dl('de-kiem-tra-'+LAST.code+'.doc','\ufeff'+wordTest(LAST));
 async function delRows(q,msg){if(!confirm(msg))return false;const{data,error}=await q.select('id');if(error){alert('Không xóa được: '+error.message);return false}if(!data||!data.length){alert('Không xóa được dòng nào. Cần chạy câu lệnh SQL cấp quyền xóa cho quản trị trên Supabase.');return false}return true}
+async function delCode(c){const t=c[0]=='T'?'tests':'games';if(!confirm('Xóa HẲN mã '+c+': gồm cả '+(t=='tests'?'đề kiểm tra':'trò chơi')+' và toàn bộ kết quả học sinh? Không thể hoàn tác.'))return;
+ const a=await SB.from('results').delete().eq('code',c).select('id');if(a.error)return alert('Không xóa được kết quả: '+a.error.message);
+ const b=await SB.from(t).delete().eq('code',c).select('code');if(b.error)return alert('Đã xóa kết quả nhưng không xóa được mã: '+b.error.message);
+ if(!b.data||!b.data.length)return alert('Đã xóa kết quả nhưng chưa xóa được mã. Cần chạy SQL cấp quyền xóa cho bảng '+t+' trên Supabase.');
+ $('#rs').innerHTML='<p class="ok">Đã xóa mã '+esc(c)+'.</p>';codes()}
 async function delAll(c){if(await delRows(SB.from('results').delete().eq('code',c),'Xóa TOÀN BỘ kết quả của mã '+c+'? Không thể hoàn tác.'))loadRes()}
 async function delOne(i){const r=RS[i];if(r&&await delRows(SB.from('results').delete().eq('id',r._id),'Xóa kết quả của '+r.name+'? Em này sẽ làm lại được bài.'))loadRes()}
 async function codes(){const a=[...(await col('tests').get()).docs,...(await col('games').get()).docs].map(d=>d.data()).sort((x,y)=>y.at-x.at);
@@ -170,13 +175,13 @@ const getLinks=()=>($('#lk').value||'').split('\n').map(s=>{const p=s.split('|')
 const linkBox=()=>(P.d.links||[]).length?'<h2>Liên kết học tập</h2>'+P.d.links.filter(l=>/^https:\/\//i.test(l.u)).map(l=>`<p><a href="${esc(l.u)}" target="_blank" rel="noopener noreferrer">${esc(l.n)} ↗</a></p>`).join(''):'';
 const cm=s=>s>=8?'Giỏi: nắm vững kiến thức, hãy thử thêm bài vận dụng.':s>=6.5?'Khá: hiểu bài tốt, cần luyện thêm câu vận dụng.':s>=5?'Trung bình: ôn lại kiến thức cốt lõi trong SGK.':'Yếu: cần ôn lại bài và được hỗ trợ thêm.';
 async function loadRes(){const c=$('#rc').value;if(!c)return;const{data:rows,error:qe}=await SB.from('results').select('id,data').eq('code',c);if(qe){$('#rs').innerHTML='<p class="err">'+esc(qe.message)+'</p>';return}const rs=(rows||[]).map(r=>({...r.data,_id:r.id}));
- if(!rs.length){$('#rs').innerHTML='<p class="mu">Chưa có học sinh nộp bài.</p>';return}
+ if(!rs.length){$('#rs').innerHTML='<p class="mu">Chưa có học sinh nộp bài.</p><p><button class="danger" onclick="delCode(\''+esc(c)+'\')">🗑 Xóa cả mã này (đề/trò chơi)</button></p>';return}
  rs.forEach(r=>r.score=Math.max(0,Math.min(10,+r.score||0)));const sc=rs.map(r=>r.score),avg=sc.reduce((a,b)=>a+b,0)/sc.length,bands=[['0 – <5',0,5],['5 – <6.5',5,6.5],['6.5 – <8',6.5,8],['8 – 10',8,11]];
  const lv=Object.keys(LV).map(k=>{let a=0,b=0;rs.forEach(r=>{if(r.by&&r.by[k]){a+=r.by[k][0];b+=r.by[k][1]}});return b?`<p>${LV[k]}: ${Math.round(a/b*100)}% đúng</p>`:''}).join('');
  $('#rs').innerHTML=`<p>Số bài: <b>${rs.length}</b> · Điểm TB: <b>${avg.toFixed(2)}</b> · Cao nhất: <b>${Math.max(...sc)}</b> · Thấp nhất: <b>${Math.min(...sc)}</b> · Đạt (≥5): <b>${Math.round(sc.filter(x=>x>=5).length/sc.length*100)}%</b></p>
  ${bands.map(([n,l,h])=>{const k=sc.filter(x=>x>=l&&x<h).length;return `<div class="bar"><span style="width:80px">${n}</span><i style="width:${k/rs.length*60}%"></i>${k} (${Math.round(k/rs.length*100)}%)</div>`}).join('')}${lv}
  <div class="wrap"><table><tr><th>Học sinh</th><th>Lớp</th><th>Nhóm</th><th>Điểm</th><th>Nhận xét</th><th></th></tr>${rs.sort((a,b)=>b.score-a.score).map((r,i)=>`<tr><td>${esc(r.name)}</td><td>${esc(r.cls||'')}</td><td>${esc(r.group||'')}</td><td>${r.score}</td><td>${r.kind=='test'?cm(r.score):''}</td><td><button class="danger" onclick="delOne(${i})">🗑 Xóa</button></td></tr>`).join('')}</table></div>
- <p><button class="alt" onclick='dlCsv(${JSON.stringify(c)})'>Tải bảng điểm (.csv)</button> <button class="danger" onclick='delAll(${JSON.stringify(c)})'>🗑 Xóa toàn bộ kết quả của mã này</button></p>`;window.RS=rs}
+ <p><button class="alt" onclick='dlCsv(${JSON.stringify(c)})'>Tải bảng điểm (.csv)</button> <button class="danger" onclick='delAll(${JSON.stringify(c)})'>🗑 Xóa kết quả của mọi học sinh</button> <button class="danger" onclick='delCode(${JSON.stringify(c)})'>🗑 Xóa cả mã này (đề/trò chơi + kết quả)</button></p>`;window.RS=rs}
 async function dlCsv(c){dl('ket-qua-'+c+'.csv','\ufeffHọ tên,Lớp,Nhóm,Điểm\n'+RS.map(r=>[cv(r.name),cv(r.cls),cv(r.group),r.score].join(',')).join('\n'))}
 let LDOCS=[],LI=[],DC={},PF=null;
 const fe=async e=>{try{return (await e.context.json()).error||e.message}catch(_){return e.message}};
