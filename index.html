@@ -129,7 +129,12 @@ function pre(){const m={a:{t:[8,1,2,0],l:[40,30,30],m:20},b:{t:[12,2,3,1],l:[40,
 function share(code,extra=''){const b=$('#base').value.replace(/#.*/,'');try{localStorage.base=b}catch(e){}const u=b+'#'+code;
  $('#share').innerHTML=`<div class="card"><h2>✅ Đã tạo xong</h2><p>Mã tham gia: <span class="code">${code}</span></p><input readonly value="${esc(u)}" onclick="this.select()"><div id="qr" class="qrbox"></div>${extra}<p class="mu">Học sinh quét QR hoặc mở link, nhập họ tên và lớp rồi vào chơi.</p></div>`;
  try{new QRCode($('#qr'),{text:u,width:150,height:150})}catch(e){}}
-async function ai(p){const{data,error}=await SB.functions.invoke('generate',{body:{prompt:p+await srcText()}});if(error)throw new Error(await fe(error));let d=data;if(typeof d=='string'){try{d=JSON.parse(d.replace(/```json|```/g,'').trim())}catch(e){throw new Error('AI trả về sai định dạng, hãy thử lại')}}if(d&&d.error)throw new Error(d.error);return d}
+async function ai(p){const body={prompt:p+await srcText()};let last='';
+ for(let k=0;k<4;k++){const{data,error}=await SB.functions.invoke('generate',{body});const msg=error?await fe(error):(data&&data.error)||'';
+  if(!msg){let d=data;if(typeof d=='string'){try{d=JSON.parse(d.replace(/```json|```/g,'').trim())}catch(e){throw new Error('AI trả về sai định dạng, hãy thử lại')}}return d}
+  last=String(msg);if(!/high demand|overload|unavailable|503|429|quota|rate/i.test(last))break;
+  const b=$('#gb')||$('#tb');if(b)b.textContent='AI đang bận, tự thử lại lần '+(k+2)+'…';await new Promise(r=>setTimeout(r,3000*(k+1)))}
+ throw new Error(/high demand|overload|unavailable|503/i.test(last)?'Máy chủ AI (Gemini) đang quá tải. Hệ thống đã tự thử lại nhiều lần, hãy đợi 1–2 phút rồi bấm tạo lại.':last)}
 async function mkGame(){
  const b=$('#gb');b.disabled=true;b.textContent='AI đang soạn…';
  try{const grade=$('#gr').value,les=LI.length?LI[+$('#gl').value].n:$('#gl2').value,mode=$('#gm').value,types=[...document.querySelectorAll('[name=gt]:checked')].map(x=>x.value),n=+$('#gq').value;
