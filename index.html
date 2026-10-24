@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-:root{--bg:#f4f7fb;--sf:#fff;--tx:#14263f;--mu:#5b6b82;--ln:#d5deea;--pr:#1d4f91;--ok:#1b8a63;--no:#d6452b;--am:#f0a500;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#eef3fb;--sf:#fff;--tx:#17284a;--mu:#5d6c8a;--ln:#d9e2f1;--pr:#2457c5;--ok:#17996b;--no:#d6452b;--am:#f5a623;--sh:0 8px 24px rgba(36,87,197,.10);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1824;--sf:#18273a;--tx:#e8eef7;--mu:#9bacc2;--ln:#2c405a;--pr:#6aa5f0;--ok:#4cc79a;--no:#ff7a60;--am:#ffc73d;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#0f1824;--sf:#18273a;--tx:#e8eef7;--mu:#9bacc2;--ln:#2c405a;--pr:#6aa5f0;--ok:#4cc79a;--no:#ff7a60;--am:#ffc73d;color-scheme:dark}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -34,6 +34,26 @@ table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{border-bottom:1
 .wrap{overflow-x:auto}td input{width:68px}.err{color:var(--no);font-weight:600}.ok{color:var(--ok);font-weight:600}
 .lst{max-height:200px;overflow:auto;border:1px solid var(--ln);border-radius:8px;padding:6px}.lst label{font-weight:400;margin:2px 0}
 @media(prefers-reduced-motion:no-preference){.opt{transition:border-color .15s}}
+
+body{background:radial-gradient(900px 320px at 50% -80px,color-mix(in srgb,var(--pr) 18%,transparent),transparent),var(--bg)}
+.hero{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:18px;color:#fff;background:linear-gradient(135deg,#1d4f91,#5b3fc5);box-shadow:var(--sh);margin-bottom:12px}
+.hero .ic{font-size:2.2rem;line-height:1}.hero h1{margin:0;color:#fff;font-size:1.35rem}.hero p{margin:2px 0 0;opacity:.92;font-size:.85rem}
+.card{border-radius:16px;box-shadow:var(--sh);border-top:4px solid var(--pr)}
+.card h2{color:var(--pr);display:flex;align-items:center;gap:6px}
+button{background:linear-gradient(135deg,var(--pr),#5b3fc5);box-shadow:0 3px 10px rgba(36,87,197,.25);transition:transform .12s,filter .12s}
+button:hover{filter:brightness(1.1);transform:translateY(-1px)}
+button.alt{background:transparent;box-shadow:none}
+button.danger{background:var(--no);box-shadow:none;padding:6px 10px;font-size:.85rem}
+.opt{box-shadow:none}.opt:hover{transform:none;filter:none}
+.tabs{overflow-x:auto;padding:4px 0}.tabs button{border-radius:999px;white-space:nowrap;box-shadow:none}
+.tabs button.on{background:linear-gradient(135deg,var(--pr),#5b3fc5);border-color:transparent}
+input,select,textarea{border-radius:10px}input:focus,select:focus,textarea:focus{border-color:var(--pr)}
+th{background:color-mix(in srgb,var(--pr) 10%,var(--sf));color:var(--pr)}
+tr:nth-child(even) td{background:color-mix(in srgb,var(--pr) 4%,var(--sf))}
+.wrap td:last-child{white-space:nowrap}
+a.lk-btn{display:inline-block;padding:8px 14px;border-radius:8px;border:1px solid var(--pr);font-weight:600;text-decoration:none;color:var(--pr)}
+.qrbox{display:inline-block;background:#fff;padding:10px;border-radius:12px;border:1px solid var(--ln);margin:10px 0}
+.hero+button{margin:2px 0 6px}
 </style></head><body><main id="app"><p class="mu">Đang tải…</p></main>
 <script>
 const LES_11=["Bài 1. Hệ điều hành","Bài 2. Thực hành sử dụng hệ điều hành","Bài 3. Phần mềm nguồn mở và phần mềm chạy trên Internet","Bài 4. Bên trong máy tính","Bài 5. Kết nối máy tính với các thiết bị số","Bài 6. Lưu trữ và chia sẻ tệp trên Internet","Bài 7. Thực hành tìm kiếm thông tin trên Internet","Bài 8. Thực hành nâng cao sử dụng thư điện tử và mạng xã hội","Bài 9. Giao tiếp an toàn trên Internet","Bài 10. Lưu trữ dữ liệu và khai thác thông tin phục vụ quản lí","Bài 11. Cơ sở dữ liệu","Bài 12. Hệ quản trị cơ sở dữ liệu và hệ cơ sở dữ liệu","Bài 13. Cơ sở dữ liệu quan hệ","Bài 14. SQL – Ngôn ngữ truy vấn có cấu trúc","Bài 15. Bảo mật và an toàn hệ cơ sở dữ liệu","Bài 16. Công việc quản trị cơ sở dữ liệu","Bài 17. Quản trị cơ sở dữ liệu trên máy tính","Bài 18. Thực hành xác định cấu trúc bảng và các trường khoá","Bài 19. Thực hành tạo lập cơ sở dữ liệu và các bảng","Bài 20. Thực hành tạo lập các bảng có khoá ngoài","Bài 21. Thực hành cập nhật và truy xuất dữ liệu các bảng","Bài 22. Thực hành cập nhật bảng dữ liệu có tham chiếu","Bài 23. Thực hành truy xuất dữ liệu qua liên kết các bảng","Bài 24. Thực hành sao lưu dữ liệu","Bài 25. Phần mềm chỉnh sửa ảnh","Bài 26. Công cụ tinh chỉnh màu sắc và công cụ chọn","Bài 27. Công cụ vẽ và một số ứng dụng","Bài 28. Tạo ảnh động","Bài 29. Khám phá phần mềm làm phim","Bài 30. Biên tập phim","Bài 31. Thực hành tạo phim hoạt hình"];
@@ -60,7 +80,7 @@ const col=n=>({
  where:(f,op,v)=>({async get(){const{data,error}=await SB.from(n).select('data').eq(f,v);if(error)throw error;return{docs:(data||[]).map(r=>({data:()=>r.data}))}}}),
  async get(){const{data,error}=await SB.from(n).select('data');if(error)throw error;return{docs:(data||[]).map(r=>({data:()=>r.data}))}}});
 const cv=x=>'"'+String(x||'').replace(/^[=+\-@]/,"'$&").replace(/"/g,'""')+'"';
-const dl=(f,d)=>{const u=URL.createObjectURL(new Blob([d],{type:/\.csv$/.test(f)?'text/csv;charset=utf-8':'text/plain;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download=f;a.click();setTimeout(()=>URL.revokeObjectURL(u),4000)};
+const dl=(f,d)=>{const u=URL.createObjectURL(new Blob([d],{type:/\.csv$/.test(f)?'text/csv;charset=utf-8':/\.doc$/.test(f)?'application/msword':'text/plain;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download=f;a.click();setTimeout(()=>URL.revokeObjectURL(u),4000)};
 const isAdmin=async()=>{try{const{data}=await SB.from('admins').select('uid').limit(1).maybeSingle();return !!data}catch(e){return false}};
 async function boot(){
  if(CFG.url.includes('YOUR')){A().innerHTML='<div class="card"><h1>Chưa cấu hình</h1><p>Mở index.html và điền CFG.url, CFG.key (xem README).</p></div>';return}
@@ -68,14 +88,14 @@ async function boot(){
  const h=location.hash.slice(1).toUpperCase(),{data:{session}}=await SB.auth.getSession();
  if(session&&!session.user.is_anonymous&&!h&&await isAdmin()){S.owner=true;return teacher()}
  if(h)return enter(h);landing()}
-function landing(){A().innerHTML=`<h1>Tin học THPT</h1><div class="card"><h2>Học sinh</h2><label>Mã tham gia</label><input id="lc" autocomplete="off"><p><button onclick="enter($('#lc').value.trim().toUpperCase())">Vào</button></p></div><div class="card"><h2>Quản trị (giáo viên)</h2><label>Email</label><input id="ae" type="email" autocomplete="username"><label>Mật khẩu</label><input id="ap" type="password" autocomplete="current-password"><p><button onclick="adminLogin()">Đăng nhập</button> <span id="am" class="err"></span></p></div>`}
+function landing(){A().innerHTML=`<div class="hero"><span class="ic">🎓</span><div><h1>Tin học THPT</h1><p>Trò chơi &amp; kiểm tra trực tuyến</p></div></div><div class="card"><h2>Học sinh</h2><label>Mã tham gia</label><input id="lc" autocomplete="off"><p><button onclick="enter($('#lc').value.trim().toUpperCase())">Vào</button></p></div><div class="card"><h2>Quản trị (giáo viên)</h2><label>Email</label><input id="ae" type="email" autocomplete="username"><label>Mật khẩu</label><input id="ap" type="password" autocomplete="current-password"><p><button onclick="adminLogin()">Đăng nhập</button> <span id="am" class="err"></span></p></div>`}
 async function adminLogin(){const{error}=await SB.auth.signInWithPassword({email:$('#ae').value.trim(),password:$('#ap').value});if(error)return $('#am').textContent='Sai email hoặc mật khẩu';if(!await isAdmin()){await SB.auth.signOut();return $('#am').textContent='Tài khoản không có quyền quản trị'}S.owner=true;teacher()}
 async function enter(code){if(!code)return;const{data:{session}}=await SB.auth.getSession();if(!session){const{error}=await SB.auth.signInAnonymously();if(error){A().innerHTML='<div class="card"><p class="err">Không đăng nhập được: '+esc(error.message)+'</p></div>';return}}student(code)}
 
 /* ---------- GIÁO VIÊN ---------- */
 function teacher(){
- A().innerHTML=`<h1>Bàn làm việc của giáo viên</h1><button class="alt" onclick="SB.auth.signOut().then(()=>location.reload())">Đăng xuất</button><p class="mu">Tin học THPT · AI soạn trò chơi khởi động và đề kiểm tra bám SGK</p>
- <div class="tabs"><button id="t-g" onclick="tab('g')">Trò chơi</button><button id="t-t" onclick="tab('t')">Bài kiểm tra</button><button id="t-r" onclick="tab('r')">Kết quả</button><button id="t-d" onclick="tab('d')">Tài liệu SGK</button></div>
+ A().innerHTML=`<div class="hero"><span class="ic">🎓</span><div><h1>Bàn làm việc của giáo viên</h1><p>Tin học THPT · AI soạn trò chơi và đề kiểm tra bám SGK</p></div></div><button class="alt" onclick="SB.auth.signOut().then(()=>location.reload())">Đăng xuất</button>
+ <div class="tabs"><button id="t-g" onclick="tab('g')">🎮 Trò chơi</button><button id="t-t" onclick="tab('t')">📝 Bài kiểm tra</button><button id="t-r" onclick="tab('r')">📊 Kết quả</button><button id="t-d" onclick="tab('d')">📚 Tài liệu SGK</button></div>
  <p class="mu">Học sinh tự nhập họ tên và lớp khi quét QR hoặc nhập mã, không cần tạo danh sách lớp.</p>
  <div id="pane"></div>`;
  loadDocs().catch(()=>{}).then(()=>tab('g'));
@@ -107,7 +127,7 @@ function pre(){const m={a:{t:[8,1,2,0],l:[40,30,30],m:20},b:{t:[12,2,3,1],l:[40,
  $('#tm').value=m.m;document.querySelectorAll('#mx input').forEach(i=>i.value=0);let r=0;
  Object.keys(TY).forEach((t,ti)=>{const n=m.t[ti],lv=m.l.map(p=>Math.round(n*p/100));lv[0]+=n-lv.reduce((a,b)=>a+b,0);['nb','th','vd'].forEach((k,ki)=>{for(let c=0;c<lv[ki];c++){const l=L[r++%L.length],e=$(`#m_${l.id}_${t}_${k}`);e.value=+e.value+1}})});msum()}
 function share(code,extra=''){const b=$('#base').value.replace(/#.*/,'');try{localStorage.base=b}catch(e){}const u=b+'#'+code;
- $('#share').innerHTML=`<div class="card"><p>Mã tham gia: <span class="code">${code}</span></p><input readonly value="${esc(u)}" onclick="this.select()"><div id="qr" style="margin:12px 0"></div>${extra}<p class="mu">Học sinh quét QR hoặc mở link, nhập họ tên và lớp rồi vào chơi.</p></div>`;
+ $('#share').innerHTML=`<div class="card"><h2>✅ Đã tạo xong</h2><p>Mã tham gia: <span class="code">${code}</span></p><input readonly value="${esc(u)}" onclick="this.select()"><div id="qr" class="qrbox"></div>${extra}<p class="mu">Học sinh quét QR hoặc mở link, nhập họ tên và lớp rồi vào chơi.</p></div>`;
  try{new QRCode($('#qr'),{text:u,width:150,height:150})}catch(e){}}
 async function ai(p){const{data,error}=await SB.functions.invoke('generate',{body:{prompt:p+await srcText()}});if(error)throw new Error(await fe(error));let d=data;if(typeof d=='string'){try{d=JSON.parse(d.replace(/```json|```/g,'').trim())}catch(e){throw new Error('AI trả về sai định dạng, hãy thử lại')}}if(d&&d.error)throw new Error(d.error);return d}
 async function mkGame(){
@@ -126,24 +146,37 @@ async function mkTest(){
  const qs=await ai(`Bạn là giáo viên Tin học THPT. Ra đề kiểm tra Tin học ${grade} (SGK Kết nối tri thức với cuộc sống, định hướng Tin học ứng dụng) cho các bài: ${les}. Phải sinh ĐÚNG số câu sau cho từng bài (t: mc = nhiều lựa chọn, tf = đúng-sai mỗi câu 4 mệnh đề, sa = trả lời ngắn, es = tự luận; l: nb/th/vd = nhận biết/thông hiểu/vận dụng): ${spec}. Mỗi câu có thêm trường "b" là tên bài của câu đó. Chỉ trả JSON là mảng, mỗi phần tử: mc {"t":"mc","l":"nb|th|vd","q":"","o":["","","",""],"a":0}; tf {"t":"tf","l":"","q":"ngữ cảnh","s":[{"x":"mệnh đề","a":true}]}; sa {"t":"sa","l":"","q":"","k":["đáp án chấp nhận được"]}; es {"t":"es","l":"","q":"","k":["ý/từ khoá chấm điểm"]}. Xếp theo thứ tự mc, tf, sa, es.`);
  if(!Array.isArray(qs))throw{message:'AI trả về sai định dạng, hãy thử lại'};
  const code=rcode('T'),time=+$('#tm').value;await col('tests').doc(code).set({code,grade,les,time,qs,links:getLinks(),at:Date.now()});
- window.LAST={code,grade,les,time,qs};share(code,'<button class="alt" onclick="dlTest()">Tải đề dạng văn bản (.txt)</button>')}
+ window.LAST={code,grade,les,time,qs};share(code,'<p><button onclick="dlDoc()">📄 Tải đề + đáp án (Word)</button> <button class="alt" onclick="dlTest()">Tải dạng .txt</button></p>')}
  catch(e){$('#share').innerHTML='<p class="err">Không tạo được: '+esc(e.message||e.code)+'</p>'}
  b.disabled=false;b.textContent='Tạo đề bằng AI'}
 function txtTest(d){let i=0;return `ĐỀ KIỂM TRA TIN HỌC ${d.grade||''}\nNội dung: ${d.les}\nThời gian: ${d.time} phút\n\n`+d.qs.map(q=>{i++;let s=`Câu ${i} (${LV[q.l]||''}): ${q.q}\n`;if(q.t=='mc')s+=q.o.map((o,j)=>'  '+'ABCD'[j]+'. '+o).join('\n')+'\n';if(q.t=='tf')s+=q.s.map((m,j)=>'  '+'abcd'[j]+') '+m.x).join('\n')+'\n';return s}).join('\n')+'\n--- ĐÁP ÁN ---\n'+d.qs.map((q,i)=>`Câu ${i+1}: `+(q.t=='mc'?'ABCD'[q.a]:q.t=='tf'?q.s.map(m=>m.a?'Đ':'S').join(' '):(q.k||[]).join(' / '))).join('\n')}
 async function dlTest(){dl('de-kiem-tra-'+LAST.code+'.txt',txtTest(LAST))}
+const aTxt=q=>q.t=='mc'?'ABCD'[q.a]:q.t=='tf'?q.s.map((m,j)=>'abcd'[j]+'-'+(m.a?'Đ':'S')).join(', '):(q.k||[]).join(' / ');
+function wordTest(d){let i=0;const body=d.qs.map(q=>{i++;let s=`<p><b>Câu ${i}.</b> <i>(${LV[q.l]||''})</i> ${esc(q.q)}</p>`;
+ if(q.t=='mc')s+=q.o.map((o,j)=>`<p class="o">${'ABCD'[j]}. ${esc(o)}</p>`).join('');
+ if(q.t=='tf')s+=q.s.map((m,j)=>`<p class="o">${'abcd'[j]}) ${esc(m.x)}</p>`).join('');
+ if(q.t=='sa')s+='<p class="o">Trả lời: ……………………………………</p>';
+ if(q.t=='es')s+='<p class="o">……………………………………………………………………………</p><p class="o">……………………………………………………………………………</p>';
+ return s}).join('');
+ const ans=d.qs.map((q,k)=>`<tr><td>${k+1}</td><td>${esc(aTxt(q))}</td></tr>`).join('');
+ return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><style>body{font-family:'Times New Roman';font-size:13pt}h1{text-align:center;font-size:16pt}.o{margin:0 0 0 28pt}td,th{border:1px solid #000;padding:4pt}table{border-collapse:collapse}</style></head><body><h1>ĐỀ KIỂM TRA TIN HỌC ${esc(d.grade||'')}</h1><p style="text-align:center">Nội dung: ${esc(d.les)}<br>Thời gian: ${esc(d.time)} phút · Họ và tên: ………………………… Lớp: ………</p>${body}<br style="page-break-before:always" clear="all"><h1>ĐÁP ÁN</h1><table><tr><th>Câu</th><th>Đáp án</th></tr>${ans}</table></body></html>`}
+const dlDoc=()=>dl('de-kiem-tra-'+LAST.code+'.doc','\ufeff'+wordTest(LAST));
+async function delRows(q,msg){if(!confirm(msg))return false;const{data,error}=await q.select('id');if(error){alert('Không xóa được: '+error.message);return false}if(!data||!data.length){alert('Không xóa được dòng nào. Cần chạy câu lệnh SQL cấp quyền xóa cho quản trị trên Supabase.');return false}return true}
+async function delAll(c){if(await delRows(SB.from('results').delete().eq('code',c),'Xóa TOÀN BỘ kết quả của mã '+c+'? Không thể hoàn tác.'))loadRes()}
+async function delOne(i){const r=RS[i];if(r&&await delRows(SB.from('results').delete().eq('id',r._id),'Xóa kết quả của '+r.name+'? Em này sẽ làm lại được bài.'))loadRes()}
 async function codes(){const a=[...(await col('tests').get()).docs,...(await col('games').get()).docs].map(d=>d.data()).sort((x,y)=>y.at-x.at);
  $('#rc').innerHTML='<option value="">— chọn —</option>'+a.map(d=>`<option value="${esc(d.code)}">${esc(d.code)} · ${esc(String(d.les||'').slice(0,40))}</option>`).join('')}
 const getLinks=()=>($('#lk').value||'').split('\n').map(s=>{const p=s.split('|'),u=(p.length>1?p.slice(1).join('|'):p[0]).trim();return{n:p.length>1?p[0].trim()||u:u,u}}).filter(x=>/^https:\/\//i.test(x.u));
 const linkBox=()=>(P.d.links||[]).length?'<h2>Liên kết học tập</h2>'+P.d.links.filter(l=>/^https:\/\//i.test(l.u)).map(l=>`<p><a href="${esc(l.u)}" target="_blank" rel="noopener noreferrer">${esc(l.n)} ↗</a></p>`).join(''):'';
 const cm=s=>s>=8?'Giỏi: nắm vững kiến thức, hãy thử thêm bài vận dụng.':s>=6.5?'Khá: hiểu bài tốt, cần luyện thêm câu vận dụng.':s>=5?'Trung bình: ôn lại kiến thức cốt lõi trong SGK.':'Yếu: cần ôn lại bài và được hỗ trợ thêm.';
-async function loadRes(){const c=$('#rc').value;if(!c)return;const rs=(await col('results').where('code','==',c).get()).docs.map(d=>d.data());
+async function loadRes(){const c=$('#rc').value;if(!c)return;const{data:rows,error:qe}=await SB.from('results').select('id,data').eq('code',c);if(qe){$('#rs').innerHTML='<p class="err">'+esc(qe.message)+'</p>';return}const rs=(rows||[]).map(r=>({...r.data,_id:r.id}));
  if(!rs.length){$('#rs').innerHTML='<p class="mu">Chưa có học sinh nộp bài.</p>';return}
  rs.forEach(r=>r.score=Math.max(0,Math.min(10,+r.score||0)));const sc=rs.map(r=>r.score),avg=sc.reduce((a,b)=>a+b,0)/sc.length,bands=[['0 – <5',0,5],['5 – <6.5',5,6.5],['6.5 – <8',6.5,8],['8 – 10',8,11]];
  const lv=Object.keys(LV).map(k=>{let a=0,b=0;rs.forEach(r=>{if(r.by&&r.by[k]){a+=r.by[k][0];b+=r.by[k][1]}});return b?`<p>${LV[k]}: ${Math.round(a/b*100)}% đúng</p>`:''}).join('');
  $('#rs').innerHTML=`<p>Số bài: <b>${rs.length}</b> · Điểm TB: <b>${avg.toFixed(2)}</b> · Cao nhất: <b>${Math.max(...sc)}</b> · Thấp nhất: <b>${Math.min(...sc)}</b> · Đạt (≥5): <b>${Math.round(sc.filter(x=>x>=5).length/sc.length*100)}%</b></p>
  ${bands.map(([n,l,h])=>{const k=sc.filter(x=>x>=l&&x<h).length;return `<div class="bar"><span style="width:80px">${n}</span><i style="width:${k/rs.length*60}%"></i>${k} (${Math.round(k/rs.length*100)}%)</div>`}).join('')}${lv}
- <div class="wrap"><table><tr><th>Học sinh</th><th>Lớp</th><th>Nhóm</th><th>Điểm</th><th>Nhận xét</th></tr>${rs.sort((a,b)=>b.score-a.score).map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.cls||'')}</td><td>${esc(r.group||'')}</td><td>${r.score}</td><td>${r.kind=='test'?cm(r.score):''}</td></tr>`).join('')}</table></div>
- <p><button class="alt" onclick='dlCsv(${JSON.stringify(c)})'>Tải bảng điểm (.csv)</button></p>`;window.RS=rs}
+ <div class="wrap"><table><tr><th>Học sinh</th><th>Lớp</th><th>Nhóm</th><th>Điểm</th><th>Nhận xét</th><th></th></tr>${rs.sort((a,b)=>b.score-a.score).map((r,i)=>`<tr><td>${esc(r.name)}</td><td>${esc(r.cls||'')}</td><td>${esc(r.group||'')}</td><td>${r.score}</td><td>${r.kind=='test'?cm(r.score):''}</td><td><button class="danger" onclick="delOne(${i})">🗑 Xóa</button></td></tr>`).join('')}</table></div>
+ <p><button class="alt" onclick='dlCsv(${JSON.stringify(c)})'>Tải bảng điểm (.csv)</button> <button class="danger" onclick='delAll(${JSON.stringify(c)})'>🗑 Xóa toàn bộ kết quả của mã này</button></p>`;window.RS=rs}
 async function dlCsv(c){dl('ket-qua-'+c+'.csv','\ufeffHọ tên,Lớp,Nhóm,Điểm\n'+RS.map(r=>[cv(r.name),cv(r.cls),cv(r.group),r.score].join(',')).join('\n'))}
 let LDOCS=[],LI=[],DC={},PF=null;
 const fe=async e=>{try{return (await e.context.json()).error||e.message}catch(_){return e.message}};
@@ -265,7 +298,7 @@ async function srcText(){const ids=[...new Set(pickDocs().filter(Boolean))];if(!
  for(const p of ids){const t=await docText(p),d=LDOCS.find(x=>x.path==p)||{};if(t)parts.push(`### ${d.title||'Bài học'}\n${t.slice(0,Math.floor(24000/ids.length))}`);else throw new Error(`Tài liệu "${d.title||p}" chưa đọc được nội dung.`)}
  const t=parts.join('\n\n').slice(0,24000);return '\n\nTÀI LIỆU SGK THAM KHẢO (bám sát nội dung này, không bịa ngoài tài liệu):\n'+t}
 function docsTab(){const g=sgkRepo();$('#pane').innerHTML=`<div class="card"><h2>Tài liệu SGK trong thư mục GitHub</h2><p class="mu">Tệp nằm trong <b>sgk/khoi-10</b>, <b>sgk/khoi-11</b>, <b>sgk/khoi-12</b> của kho GitHub. Thêm, sửa, xóa trực tiếp trên GitHub; sau 1–2 phút bấm Làm mới.</p><p>${[10,11,12].map(k=>`<a href="${ghUrl('upload','sgk/khoi-'+k)}" target="_blank" rel="noopener">➕ Thêm tệp khối ${k}</a>`).join(' · ')} · <a href="#" onclick="refreshDocs();return false">↻ Làm mới danh sách</a></p>${g?'':'<p class="err">Chưa nhận ra kho GitHub từ địa chỉ trang nên liên kết Thêm/Sửa/Xóa chưa dùng được.</p>'}<p id="dstat" class="mu"></p><div id="dlist" class="wrap"></div></div><div class="card" id="dview" style="display:none"></div><div class="card">${toolForm()}</div>`;dlist()}
-function dlist(){dstat();$('#dlist').innerHTML=LDOCS.length?`<table><tr><th>Tên Bài / Mục</th><th>Khối</th><th>Loại</th><th></th></tr>${LDOCS.map((d,i)=>`<tr><td>${esc(d.title)}</td><td>${esc(d.grade)}</td><td>${esc(d.kind).toUpperCase()}</td><td><button class="alt" onclick="viewDoc(${i})">📖 Đọc</button> <a href="${ghUrl('edit',d.rawPath||d.path)}" target="_blank" rel="noopener">Sửa trên GitHub</a></td></tr>`).join('')}</table>`:'<p class="mu">Chưa có tài liệu. Thêm tệp vào thư mục sgk/khoi-… trên GitHub rồi bấm Làm mới.</p>'}
+function dlist(){dstat();$('#dlist').innerHTML=LDOCS.length?`<table><tr><th>Tên Bài / Mục</th><th>Khối</th><th>Loại</th><th></th></tr>${LDOCS.map((d,i)=>`<tr><td>${esc(d.title)}</td><td>${esc(d.grade)}</td><td>${esc(d.kind).toUpperCase()}</td><td><button class="alt" onclick="viewDoc(${i})">📖 Đọc</button> <a href="${ghUrl('edit',d.rawPath||d.path)}" target="_blank" rel="noopener" class="lk-btn">✏️ Sửa</a></td></tr>`).join('')}</table>`:'<p class="mu">Chưa có tài liệu. Thêm tệp vào thư mục sgk/khoi-… trên GitHub rồi bấm Làm mới.</p>'}
 async function refreshDocs(){delete sessionStorage.sgkc;$('#dlist').innerHTML='<p class="mu">Đang tải và cập nhật…</p>';await loadDocs(true);dlist();renderLes();fillSrc()}
 async function viewDoc(i){const d=LDOCS[i],v=$('#dview');v.style.display='';v.innerHTML='<p class="mu">Đang đọc…</p>';const t=await docText(d.path);v.innerHTML=`<h2>${esc(d.title)}</h2><p class="mu">${t?t.length+' ký tự.':'Không có nội dung'}</p><textarea readonly rows="18">${esc(t)}</textarea>`;v.scrollIntoView()}
 function toolForm(){return `<h2>Công cụ: đọc PDF (kể cả bản scan) và tạo tệp .md</h2><label>Tệp PDF/MD trên máy</label><input id="df" type="file" accept=".md,.markdown,.txt,.pdf" onchange="pickFile(this.files[0])"><div class="row"><div><label>Từ trang</label><input id="p1" type="number" min="1" placeholder="1"></div><div><label>Đến trang</label><input id="p2" type="number" min="1" placeholder="hết"></div></div><p><button class="alt" onclick="readFile()">📖 Đọc file</button> <button class="alt" onclick="ocrFile()">🤖 Đọc bằng AI (PDF scan)</button></p><label>Nội dung đọc được (xem toàn bộ, sửa nếu cần)</label><textarea id="dc" rows="16"></textarea><label>Tên bài (làm dòng tiêu đề và tên tệp, ví dụ Bài 1. Giới thiệu AI)</label><input id="ft"><label>Khối</label><select id="fg"><option>10</option><option>11</option><option selected>12</option></select><p><button onclick="dlMd()">⬇ Tải về tệp .md</button> <span id="dm" class="mu"></span></p><p class="mu">Sau khi tải về, đưa tệp lên thư mục sgk/khoi-… trên GitHub bằng liên kết "Thêm tệp" ở trên.</p>`}
@@ -291,7 +324,7 @@ async function ocrFile(){const m=$('#dm');if(!PF||!/\.pdf$/i.test(PF.name))retur
 
 /* ---------- HỌC SINH ---------- */
 function student(code){
- A().innerHTML=`<h1>Vào chơi / làm bài</h1><div class="card"><label>Mã tham gia</label><input id="jc" value="${esc(code)}" autocomplete="off"><label>Họ và tên của em</label><input id="jn" maxlength="60" autocomplete="name"><label>Lớp</label><input id="jl" maxlength="20" placeholder="Ví dụ: 12A1"><label>Nhóm (chỉ chọn khi giáo viên yêu cầu chơi nhóm)</label><select id="jg"><option value="">— không chọn —</option>${[1,2,3,4,5,6,7,8,9,10,11,12].map(i=>`<option>Nhóm ${i}</option>`).join('')}</select><p><button onclick="join()">Vào</button></p><p id="jm" class="err"></p></div>`}
+ A().innerHTML=`<div class="hero"><span class="ic">✏️</span><div><h1>Vào chơi / làm bài</h1><p>Nhập họ tên và lớp để bắt đầu</p></div></div><div class="card"><label>Mã tham gia</label><input id="jc" value="${esc(code)}" autocomplete="off"><label>Họ và tên của em</label><input id="jn" maxlength="60" autocomplete="name"><label>Lớp</label><input id="jl" maxlength="20" placeholder="Ví dụ: 12A1"><label>Nhóm (chỉ chọn khi giáo viên yêu cầu chơi nhóm)</label><select id="jg"><option value="">— không chọn —</option>${[1,2,3,4,5,6,7,8,9,10,11,12].map(i=>`<option>Nhóm ${i}</option>`).join('')}</select><p><button onclick="join()">Vào</button></p><p id="jm" class="err"></p></div>`}
 async function join(){
  const code=$('#jc').value.trim().toUpperCase(),name=$('#jn').value.trim().replace(/\s+/g,' '),cls=$('#jl').value.trim(),g=$('#jg').value,m=$('#jm');
  if(!code||name.length<2)return m.textContent='Hãy nhập mã và họ tên của em.';
