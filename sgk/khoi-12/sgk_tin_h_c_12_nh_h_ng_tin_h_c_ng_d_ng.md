@@ -1,4 +1,4 @@
-# CHỦ ĐỀ 1. MÁY TÍNH VÀ XÃ HỘI TRI THỨC
+# CHỦ ĐỀ 1: MÁY TÍNH VÀ XÃ HỘI TRI THỨC
 
 ---
 
