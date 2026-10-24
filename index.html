@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://cdnjs.cloudflare.com https://api.github.com https://raw.githubusercontent.com; worker-src blob:; img-src 'self' data: blob:; base-uri 'none'; object-src 'none'">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<title>Tin học THPT – Trò chơi & Kiểm tra</title>
+<title>Tin học THPT – Trò chơi &amp; Kiểm tra</title>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
@@ -42,10 +42,12 @@ const LES_MAP={"11":LES_11,"12":LES_12};
 
 const LV={nb:"Nhận biết",th:"Thông hiểu",vd:"Vận dụng"},GT={mc:"Trắc nghiệm nhanh",tf:"Đúng – Sai nhanh",voice:"Trả lời bằng giọng nói",fill:"Điền khuyết",scr:"Xếp chữ giải mã thuật ngữ",match:"Ghép đôi khái niệm – mô tả",order:"Sắp xếp thứ tự các bước"};
 const S={},P={};let T=null;
-const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),A=$=>document.getElementById('app');
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),A=$=>document.getElementById('app');
 const norm=s=>String(s||'').toLowerCase().normalize('NFC').replace(/[^\p{L}\p{N} ]/gu,'').trim();
 const fmt=s=>Math.floor(Math.max(s,0)/60)+':'+String(Math.max(s,0)%60).padStart(2,'0');
-const rcode=p=>p+Math.random().toString(36).slice(2,6).toUpperCase();
+const rcode=p=>p+Math.random().toString(36).slice(2,7).toUpperCase();
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const keys=k=>(k||[]).map(norm).filter(Boolean);
 const say=t=>{try{const u=new SpeechSynthesisUtterance(t);u.lang='vi-VN';speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}};
 const CFG={url:'https://eedjkzxajumnehluqgcw.supabase.co',key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZGprenhhanVtbmVobHVxZ2N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3MzM4NjEsImV4cCI6MjEwODMwOTg2MX0.6YFoevZlcNAIoQ_3Dzfuv7rmAMy9DCZQ9VrMe6T4ofQ'}; 
 let SB;
@@ -58,11 +60,11 @@ const col=n=>({
  where:(f,op,v)=>({async get(){const{data,error}=await SB.from(n).select('data').eq(f,v);if(error)throw error;return{docs:(data||[]).map(r=>({data:()=>r.data}))}}}),
  async get(){const{data,error}=await SB.from(n).select('data');if(error)throw error;return{docs:(data||[]).map(r=>({data:()=>r.data}))}}});
 const cv=x=>'"'+String(x||'').replace(/^[=+\-@]/,"'$&").replace(/"/g,'""')+'"';
-const dl=(f,d)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d],{type:'text/plain;charset=utf-8'}));a.download=f;a.click()};
-const isAdmin=async()=>{const{data}=await SB.from('admins').select('uid').maybeSingle();return !!data};
+const dl=(f,d)=>{const u=URL.createObjectURL(new Blob([d],{type:/\.csv$/.test(f)?'text/csv;charset=utf-8':'text/plain;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download=f;a.click();setTimeout(()=>URL.revokeObjectURL(u),4000)};
+const isAdmin=async()=>{try{const{data}=await SB.from('admins').select('uid').limit(1).maybeSingle();return !!data}catch(e){return false}};
 async function boot(){
  if(CFG.url.includes('YOUR')){A().innerHTML='<div class="card"><h1>Chưa cấu hình</h1><p>Mở index.html và điền CFG.url, CFG.key (xem README).</p></div>';return}
- SB=supabase.createClient(CFG.url,CFG.key);S.db=true;
+ if(!window.supabase){A().innerHTML='<div class="card"><p class="err">Không tải được thư viện Supabase. Kiểm tra mạng rồi tải lại trang.</p></div>';return}SB=supabase.createClient(CFG.url,CFG.key);S.db=true;
  const h=location.hash.slice(1).toUpperCase(),{data:{session}}=await SB.auth.getSession();
  if(session&&!session.user.is_anonymous&&!h&&await isAdmin()){S.owner=true;return teacher()}
  if(h)return enter(h);landing()}
@@ -79,7 +81,7 @@ function teacher(){
  loadDocs().catch(()=>{}).then(()=>tab('g'));
 }
 function tab(t){['g','t','r','d'].forEach(x=>$('#t-'+x).className=x==t?'on':'');
- const base=`<label>Link trang này (dán link artifact để QR đúng)</label><input id="base" value="${esc((()=>{try{return localStorage.base}catch(e){}})()||location.href.split('#')[0])}">`;
+ const base=`<label>Link trang này (dùng để tạo mã QR)</label><input id="base" value="${esc((()=>{try{return localStorage.base}catch(e){}})()||location.href.split('#')[0])}">`;
  const gr=`<div class="row"><div><label>Khối</label><select id="gr" onchange="gch()"><option>10</option><option selected>11</option><option>12</option></select></div></div>`;
  if(t=='g')$('#pane').innerHTML=`<div class="card"><h2>Tạo trò chơi Khởi động</h2>${gr}
  <label>Bài dạy</label><select id="gl"></select><input id="gl2" style="display:none" placeholder="Nhập tên bài (chưa có SGK khối này trong tài liệu)">
@@ -107,13 +109,13 @@ function pre(){const m={a:{t:[8,1,2,0],l:[40,30,30],m:20},b:{t:[12,2,3,1],l:[40,
 function share(code,extra=''){const b=$('#base').value.replace(/#.*/,'');try{localStorage.base=b}catch(e){}const u=b+'#'+code;
  $('#share').innerHTML=`<div class="card"><p>Mã tham gia: <span class="code">${code}</span></p><input readonly value="${esc(u)}" onclick="this.select()"><div id="qr" style="margin:12px 0"></div>${extra}<p class="mu">Học sinh quét QR hoặc mở link, nhập họ tên và lớp rồi vào chơi.</p></div>`;
  try{new QRCode($('#qr'),{text:u,width:150,height:150})}catch(e){}}
-async function ai(p){const{data,error}=await SB.functions.invoke('generate',{body:{prompt:p+await srcText()}});if(error)throw new Error(await fe(error));return data}
+async function ai(p){const{data,error}=await SB.functions.invoke('generate',{body:{prompt:p+await srcText()}});if(error)throw new Error(await fe(error));let d=data;if(typeof d=='string'){try{d=JSON.parse(d.replace(/```json|```/g,'').trim())}catch(e){throw new Error('AI trả về sai định dạng, hãy thử lại')}}if(d&&d.error)throw new Error(d.error);return d}
 async function mkGame(){
  const b=$('#gb');b.disabled=true;b.textContent='AI đang soạn…';
  try{const grade=$('#gr').value,les=LI.length?LI[+$('#gl').value].n:$('#gl2').value,mode=$('#gm').value,types=[...document.querySelectorAll('[name=gt]:checked')].map(x=>x.value),n=+$('#gq').value;
  if(!les||!types.length)throw{message:'Hãy chọn bài và trò chơi'};
  const q=await ai(`Bạn là giáo viên Tin học THPT. Soạn câu hỏi trò chơi Khởi động cho Tin học ${grade} (SGK Kết nối tri thức với cuộc sống), ${les}. Vui nhộn, bám mục tiêu bài. Chỉ trả JSON dạng {"mc":[{"q":"","o":["A","B","C","D"],"a":0}],"tf":[{"q":"","a":true}],"voice":[{"q":"câu hỏi ngắn có đáp án là một thuật ngữ","k":["thuật ngữ chấp nhận được"]}],"fill":[{"q":"câu có chỗ trống ____","k":["đáp án"]}],"scr":[{"q":"gợi ý nghĩa của từ","k":["TỪ KHOÁ không quá 12 chữ cái"]}],"match":[{"q":"Ghép khái niệm với mô tả","p":[["khái niệm","mô tả ngắn"]]}],"order":[{"q":"Sắp xếp các bước","s":["bước 1","bước 2","bước 3","bước 4"]}]}. Mỗi loại ${n} câu cho các loại: ${types.join(', ')} (riêng match và order mỗi câu có đúng 4 mục); loại khác để mảng rỗng. a của mc là chỉ số 0-3.`);
- const ng=mode=='nhom'?+$('#gn').value:0;
+ if(!q||typeof q!='object'||Array.isArray(q))throw{message:'AI trả về sai định dạng, hãy thử lại'};const ng=mode=='nhom'?+$('#gn').value:0;
  const code=rcode('G');await col('games').doc(code).set({code,grade,les,mode,types,qs:q,ng,time:+$('#gx').value,links:getLinks(),at:Date.now()});share(code)}
  catch(e){$('#share').innerHTML='<p class="err">Không tạo được: '+esc(e.message||e.code)+'</p>'}
  b.disabled=false;b.textContent='Tạo bằng AI và lấy link / QR'}
@@ -124,19 +126,19 @@ async function mkTest(){
  const qs=await ai(`Bạn là giáo viên Tin học THPT. Ra đề kiểm tra Tin học ${grade} (SGK Kết nối tri thức với cuộc sống, định hướng Tin học ứng dụng) cho các bài: ${les}. Phải sinh ĐÚNG số câu sau cho từng bài (t: mc = nhiều lựa chọn, tf = đúng-sai mỗi câu 4 mệnh đề, sa = trả lời ngắn, es = tự luận; l: nb/th/vd = nhận biết/thông hiểu/vận dụng): ${spec}. Mỗi câu có thêm trường "b" là tên bài của câu đó. Chỉ trả JSON là mảng, mỗi phần tử: mc {"t":"mc","l":"nb|th|vd","q":"","o":["","","",""],"a":0}; tf {"t":"tf","l":"","q":"ngữ cảnh","s":[{"x":"mệnh đề","a":true}]}; sa {"t":"sa","l":"","q":"","k":["đáp án chấp nhận được"]}; es {"t":"es","l":"","q":"","k":["ý/từ khoá chấm điểm"]}. Xếp theo thứ tự mc, tf, sa, es.`);
  if(!Array.isArray(qs))throw{message:'AI trả về sai định dạng, hãy thử lại'};
  const code=rcode('T'),time=+$('#tm').value;await col('tests').doc(code).set({code,grade,les,time,qs,links:getLinks(),at:Date.now()});
- window.LAST={code,les,time,qs};share(code,'<button class="alt" onclick="dlTest()">Tải đề dạng văn bản (.txt)</button>')}
+ window.LAST={code,grade,les,time,qs};share(code,'<button class="alt" onclick="dlTest()">Tải đề dạng văn bản (.txt)</button>')}
  catch(e){$('#share').innerHTML='<p class="err">Không tạo được: '+esc(e.message||e.code)+'</p>'}
  b.disabled=false;b.textContent='Tạo đề bằng AI'}
 function txtTest(d){let i=0;return `ĐỀ KIỂM TRA TIN HỌC ${d.grade||''}\nNội dung: ${d.les}\nThời gian: ${d.time} phút\n\n`+d.qs.map(q=>{i++;let s=`Câu ${i} (${LV[q.l]||''}): ${q.q}\n`;if(q.t=='mc')s+=q.o.map((o,j)=>'  '+'ABCD'[j]+'. '+o).join('\n')+'\n';if(q.t=='tf')s+=q.s.map((m,j)=>'  '+'abcd'[j]+') '+m.x).join('\n')+'\n';return s}).join('\n')+'\n--- ĐÁP ÁN ---\n'+d.qs.map((q,i)=>`Câu ${i+1}: `+(q.t=='mc'?'ABCD'[q.a]:q.t=='tf'?q.s.map(m=>m.a?'Đ':'S').join(' '):(q.k||[]).join(' / '))).join('\n')}
 async function dlTest(){dl('de-kiem-tra-'+LAST.code+'.txt',txtTest(LAST))}
 async function codes(){const a=[...(await col('tests').get()).docs,...(await col('games').get()).docs].map(d=>d.data()).sort((x,y)=>y.at-x.at);
- $('#rc').innerHTML='<option value="">— chọn —</option>'+a.map(d=>`<option value="${d.code}">${d.code} · ${esc(d.les).slice(0,40)}</option>`).join('')}
+ $('#rc').innerHTML='<option value="">— chọn —</option>'+a.map(d=>`<option value="${esc(d.code)}">${esc(d.code)} · ${esc(String(d.les||'').slice(0,40))}</option>`).join('')}
 const getLinks=()=>($('#lk').value||'').split('\n').map(s=>{const p=s.split('|'),u=(p.length>1?p.slice(1).join('|'):p[0]).trim();return{n:p.length>1?p[0].trim()||u:u,u}}).filter(x=>/^https:\/\//i.test(x.u));
 const linkBox=()=>(P.d.links||[]).length?'<h2>Liên kết học tập</h2>'+P.d.links.filter(l=>/^https:\/\//i.test(l.u)).map(l=>`<p><a href="${esc(l.u)}" target="_blank" rel="noopener noreferrer">${esc(l.n)} ↗</a></p>`).join(''):'';
 const cm=s=>s>=8?'Giỏi: nắm vững kiến thức, hãy thử thêm bài vận dụng.':s>=6.5?'Khá: hiểu bài tốt, cần luyện thêm câu vận dụng.':s>=5?'Trung bình: ôn lại kiến thức cốt lõi trong SGK.':'Yếu: cần ôn lại bài và được hỗ trợ thêm.';
 async function loadRes(){const c=$('#rc').value;if(!c)return;const rs=(await col('results').where('code','==',c).get()).docs.map(d=>d.data());
  if(!rs.length){$('#rs').innerHTML='<p class="mu">Chưa có học sinh nộp bài.</p>';return}
- const sc=rs.map(r=>r.score),avg=sc.reduce((a,b)=>a+b,0)/sc.length,bands=[['0 – <5',0,5],['5 – <6.5',5,6.5],['6.5 – <8',6.5,8],['8 – 10',8,11]];
+ rs.forEach(r=>r.score=Math.max(0,Math.min(10,+r.score||0)));const sc=rs.map(r=>r.score),avg=sc.reduce((a,b)=>a+b,0)/sc.length,bands=[['0 – <5',0,5],['5 – <6.5',5,6.5],['6.5 – <8',6.5,8],['8 – 10',8,11]];
  const lv=Object.keys(LV).map(k=>{let a=0,b=0;rs.forEach(r=>{if(r.by&&r.by[k]){a+=r.by[k][0];b+=r.by[k][1]}});return b?`<p>${LV[k]}: ${Math.round(a/b*100)}% đúng</p>`:''}).join('');
  $('#rs').innerHTML=`<p>Số bài: <b>${rs.length}</b> · Điểm TB: <b>${avg.toFixed(2)}</b> · Cao nhất: <b>${Math.max(...sc)}</b> · Thấp nhất: <b>${Math.min(...sc)}</b> · Đạt (≥5): <b>${Math.round(sc.filter(x=>x>=5).length/sc.length*100)}%</b></p>
  ${bands.map(([n,l,h])=>{const k=sc.filter(x=>x>=l&&x<h).length;return `<div class="bar"><span style="width:80px">${n}</span><i style="width:${k/rs.length*60}%"></i>${k} (${Math.round(k/rs.length*100)}%)</div>`}).join('')}${lv}
@@ -146,17 +148,17 @@ async function dlCsv(c){dl('ket-qua-'+c+'.csv','\ufeffHọ tên,Lớp,Nhóm,Đi�
 let LDOCS=[],LI=[],DC={},PF=null;
 const fe=async e=>{try{return (await e.context.json()).error||e.message}catch(_){return e.message}};
 const GH={o:'',r:''}; 
-const sgkRepo=()=>{if(GH.o)return GH;const h=location.hostname;return h.endsWith('.github.io')?{o:h.split('.')[0],r:location.pathname.split('/')[1]||''}:null};
+const sgkRepo=()=>{if(GH.o)return GH;const h=location.hostname;return h.endsWith('.github.io')?{o:h.split('.')[0],r:(p=>p&&!/\.html?$/i.test(p)?p:h)(location.pathname.split('/')[1]||'')}:null};
 const ghUrl=(k,p)=>{const g=sgkRepo();return g?`https://github.com/${g.o}/${g.r}/${k}/main/${encodeURI(p)}`:'#'};
 const slug=x=>x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 let DSRC='',DERR='';
 const ext=n=>(n.match(/\.[^.]+$/)||[''])[0].toLowerCase(),nice=n=>n.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' ');
 
 // Bóc tách từng bài học từ Markdown (bắt chuẩn cả BÀI IN HOA, Bài thường, dấu hai chấm, dấu chấm)
-function splitMdIntoLessons(text, filePath, grade, defaultTitle) {
- if(!text) return [{title: defaultTitle, grade, kind:'md', path: filePath}];
+function splitMdIntoLessons(text, filePath, grade, defaultTitle, url) {
+ if(!text) return [{title: defaultTitle, grade, kind:'md', path: filePath, url}];
  const lines = text.split('\n');
- const regex = /^##\s+(BÀI\s+\d+|Bài\s+\d+)[\.:\s]+(.*)$/i;
+ const regex = /^#{1,4}\s*(?:\*\*)?\s*(BÀI\s+\d+|Bài\s+\d+)\s*[\.:\-–—]?\s*(.*?)(?:\*\*)?\s*$/i;
  const sections = [];
  let curTitle = '';
  let curLines = [];
@@ -179,7 +181,7 @@ function splitMdIntoLessons(text, filePath, grade, defaultTitle) {
 
  if(!sections.length) {
   DC[filePath] = text;
-  return [{title: defaultTitle, grade, kind:'md', path: filePath, rawPath: filePath}];
+  return [{title: defaultTitle, grade, kind:'md', path: filePath, rawPath: filePath, url}];
  }
 
  return sections.map((s, idx) => {
@@ -190,7 +192,8 @@ function splitMdIntoLessons(text, filePath, grade, defaultTitle) {
    grade,
    kind: 'md',
    path: subPath,
-   rawPath: filePath
+   rawPath: filePath,
+   url
   };
  });
 }
@@ -201,7 +204,7 @@ async function loadDocs(force){LDOCS=[];DC={};DSRC='';DERR='';const g=sgkRepo();
   const c=force?null:(()=>{try{return JSON.parse(sessionStorage.sgkc||'null')}catch(e){return null}})();
   if(c&&Date.now()-c.t<300000&&c.o==g.o+'/'+g.r){
    LDOCS=c.d;
-   if(c.dc) DC=c.dc;
+   
    DSRC='GitHub (nhớ tạm 5 phút)';
    return;
   }
@@ -213,21 +216,21 @@ async function loadDocs(force){LDOCS=[];DC={};DSRC='';DERR='';const g=sgkRepo();
     DC[f.path]=t;
     const m=t.match(/^#\s+(.+)$/m);
     const defTitle = m?m[1].trim():nice(f.name);
-    return splitMdIntoLessons(t, f.path, f.k, defTitle);
+    return splitMdIntoLessons(t, f.path, f.k, defTitle, f.download_url);
    }
    if(x=='.pdf'&&!U[stem+'.md']&&!U[stem+'.txt'])return [{title:nice(f.name),grade:f.k,kind:'pdf',path:f.path,url:f.download_url}];
    return [];
   }));
   LDOCS=es.flat().filter(Boolean);
   DSRC='GitHub (cập nhật trực tiếp)';
-  try{sessionStorage.sgkc=JSON.stringify({t:Date.now(),o:g.o+'/'+g.r,d:LDOCS,dc:DC})}catch(e){}
+  try{sessionStorage.sgkc=JSON.stringify({t:Date.now(),o:g.o+'/'+g.r,d:LDOCS})}catch(e){}
  }catch(e){DERR=e.message||String(e);
   try{const r=await fetch('sgk/index.json?v='+Date.now());if(r.ok){LDOCS=(await r.json()).map(d=>({...d,url:d.path,pdfUrl:d.pdf||''}));DSRC='sgk/index.json (dự phòng)'}}catch(_){}}}
 function dstat(){const e=$('#dstat');if(e)e.innerHTML=`Nguồn danh sách: ${esc(DSRC||'chưa đọc được')} · <b>${LDOCS.length}</b> bài/tài liệu${DERR?' · <span class="err">'+esc(DERR)+'</span>':''}`}
-function lhint(g){const h=$('#lh');if(!h)return;const n=LDOCS.filter(d=>d.grade==g).length;h.textContent=n?`Khối ${g}: Đã nhận ${n} bài học từ file SGK.`:`Khối ${g}: Sử dụng danh mục SGK dự phòng.`}
+function lhint(g){const h=$('#lh');if(!h)return;const n=LDOCS.filter(d=>d.grade==g).length;h.textContent=n?`Khối ${g}: Đã nhận ${n} bài học từ file SGK.`:`Khối ${g}: ${LES_MAP[g]?'Dùng danh mục bài dự phòng (chưa có file SGK).':'Chưa có file SGK, hãy tự nhập tên bài.'}`}
 
 function lessonItems(g){
- const it=LDOCS.filter(d=>d.grade==g).map((d,i)=>({id:'d_'+g+'_'+i,n:d.title,doc:d.path}));
+ const it=LDOCS.filter(d=>d.grade==g).sort((a,b)=>String(a.title).localeCompare(String(b.title),'vi',{numeric:true})).map((d,i)=>({id:'d_'+g+'_'+i,n:d.title,doc:d.path}));
  const defs=LES_MAP[g]||[];
  if(!it.length){
   defs.forEach((n,i)=>it.push({id:`def_${g}_${i}`,n,doc:''}));
@@ -235,7 +238,7 @@ function lessonItems(g){
  return it;
 }
 
-function renderLes(){const g=$('#gr').value;LI=lessonItems(g);lhint(g);
+function renderLes(){if(!$('#gr'))return;const g=$('#gr').value;LI=lessonItems(g);lhint(g);
  const gl=$('#gl');if(gl)gl.innerHTML=LI.map((x,i)=>`<option value="${i}">${esc(x.n)}</option>`).join('');
  const tl=$('#tl');if(tl)tl.innerHTML=LI.map((x,i)=>`<label><input type="checkbox" value="${i}"> ${esc(x.n)}</label>`).join('');
  const none=!LI.length;[['gl','gl2'],['tl','tl2']].forEach(([a,b])=>{$('#'+a)&&($('#'+a).style.display=none?'none':'');$('#'+b)&&($('#'+b).style.display=none?'':'none')})}
@@ -251,14 +254,15 @@ async function openPdf(f){await loadPdfJs();return pdfjsLib.getDocument({data:aw
 async function pdfTextOf(f,a,b){const pdf=await openPdf(f);a=a||1;b=Math.min(b||pdf.numPages,pdf.numPages);let t='';for(let i=a;i<=b;i++){const c=await(await pdf.getPage(i)).getTextContent();t+=`\n\n## Trang ${i}\n`+c.items.map(y=>y.str).join(' ').trim()}return t.trim()}
 async function docText(p){
  if(DC[p]!=null)return DC[p];
- const rootPath = p.split('#')[0];
- if(DC[rootPath]!=null) return DC[rootPath];
- const d=LDOCS.find(x=>x.path==p||x.path==rootPath)||{},u=d.url||rootPath;
- let t='';try{if(/\.pdf$/i.test(rootPath)){t=await pdfTextOf(await(await fetch(u)).blob(),1,200);if(t.replace(/## Trang \d+/g,'').trim().length<100)t=''}else t=await(await fetch(u)).text()}catch(e){t=''}
- return DC[p]=t;
-}
+ const root=p.split('#')[0],d=LDOCS.find(x=>x.path==p)||{},u=d.url||root;let t='';
+ try{
+  if(/\.pdf$/i.test(root)){t=await pdfTextOf(await(await fetch(u)).blob(),1,200);if(t.replace(/## Trang \d+/g,'').trim().length<100)t=''}
+  else{const r=await fetch(u);if(!r.ok)throw 0;const full=await r.text();
+   if(p.includes('#sec_')){splitMdIntoLessons(full,root,d.grade,'',d.url);t=DC[p]||''}else t=full}
+ }catch(e){t=''}
+ if(t)DC[p]=t;return t}
 async function srcText(){const ids=[...new Set(pickDocs().filter(Boolean))];if(!ids.length)return '';const parts=[];
- for(const p of ids){const t=await docText(p),d=LDOCS.find(x=>x.path==p)||{};if(t)parts.push(`### ${d.title||'Bài học'}\n${t}`);else throw new Error(`Tài liệu "${d.title||p}" chưa đọc được nội dung.`)}
+ for(const p of ids){const t=await docText(p),d=LDOCS.find(x=>x.path==p)||{};if(t)parts.push(`### ${d.title||'Bài học'}\n${t.slice(0,Math.floor(24000/ids.length))}`);else throw new Error(`Tài liệu "${d.title||p}" chưa đọc được nội dung.`)}
  const t=parts.join('\n\n').slice(0,24000);return '\n\nTÀI LIỆU SGK THAM KHẢO (bám sát nội dung này, không bịa ngoài tài liệu):\n'+t}
 function docsTab(){const g=sgkRepo();$('#pane').innerHTML=`<div class="card"><h2>Tài liệu SGK trong thư mục GitHub</h2><p class="mu">Tệp nằm trong <b>sgk/khoi-10</b>, <b>sgk/khoi-11</b>, <b>sgk/khoi-12</b> của kho GitHub. Thêm, sửa, xóa trực tiếp trên GitHub; sau 1–2 phút bấm Làm mới.</p><p>${[10,11,12].map(k=>`<a href="${ghUrl('upload','sgk/khoi-'+k)}" target="_blank" rel="noopener">➕ Thêm tệp khối ${k}</a>`).join(' · ')} · <a href="#" onclick="refreshDocs();return false">↻ Làm mới danh sách</a></p>${g?'':'<p class="err">Chưa nhận ra kho GitHub từ địa chỉ trang nên liên kết Thêm/Sửa/Xóa chưa dùng được.</p>'}<p id="dstat" class="mu"></p><div id="dlist" class="wrap"></div></div><div class="card" id="dview" style="display:none"></div><div class="card">${toolForm()}</div>`;dlist()}
 function dlist(){dstat();$('#dlist').innerHTML=LDOCS.length?`<table><tr><th>Tên Bài / Mục</th><th>Khối</th><th>Loại</th><th></th></tr>${LDOCS.map((d,i)=>`<tr><td>${esc(d.title)}</td><td>${esc(d.grade)}</td><td>${esc(d.kind).toUpperCase()}</td><td><button class="alt" onclick="viewDoc(${i})">📖 Đọc</button> <a href="${ghUrl('edit',d.rawPath||d.path)}" target="_blank" rel="noopener">Sửa trên GitHub</a></td></tr>`).join('')}</table>`:'<p class="mu">Chưa có tài liệu. Thêm tệp vào thư mục sgk/khoi-… trên GitHub rồi bấm Làm mới.</p>'}
@@ -295,27 +299,27 @@ async function join(){
  const dd=d.data();if(dd.mode=='nhom'){if(!g)return m.textContent='Giáo viên chọn chơi nhóm, em hãy chọn nhóm.';if(dd.ng&&+g.replace(/\D/g,'')>dd.ng)return m.textContent='Chỉ có '+dd.ng+' nhóm.'}
  const{data:{user}}=await SB.auth.getUser(),rid=code+'_'+user.id+'_'+norm(name).replace(/ /g,'');
  if((await col('results').doc(rid).get()).exists)return m.textContent='Em đã làm bài này rồi.';
- Object.assign(P,{d:dd,code,rid,name,cls,grp:dd.mode=='nhom'?g:'',score:0,n:0});code[0]=='T'?runTest():runGame()}
+ Object.assign(P,{d:dd,code,rid,name,cls,grp:dd.mode=='nhom'?g:'',score:0,n:0,done:false,lock:false});code[0]=='T'?runTest():runGame()}
 function clock(end){clearInterval(T);P.left=P.d.time*60;const t=()=>{const c=$('#clk');if(c){c.textContent=fmt(P.left);c.parentNode.classList.toggle('low',P.left<=30)}};t();T=setInterval(()=>{P.left--;t();if(P.left<=0){clearInterval(T);end()}},1000)}
 function runGame(){const d=P.d,ty=d.mode=='nhom'?d.types:[d.types[0]];P.q=[];ty.forEach(t=>(d.qs[t]||[]).forEach(q=>P.q.push({...q,g:t})));P.i=0;
  A().innerHTML=`<div class="clock"><span>${esc(P.name)} ${P.grp?'· '+P.grp:''}</span><span id="clk"></span></div><div id="gm" class="card"></div>`;clock(endGame);showQ()}
-function showQ(){const q=P.q[P.i];if(!q)return endGame();let h=`<p class="mu">${GT[q.g]} · Câu ${P.i+1}/${P.q.length} · Điểm: ${P.score}</p><div class="q">${esc(q.q)}</div>`;
+function showQ(){if(P.done)return;P.lock=false;const q=P.q[P.i];if(!q)return endGame();let h=`<p class="mu">${GT[q.g]} · Câu ${P.i+1}/${P.q.length} · Điểm: ${P.score}</p><div class="q">${esc(q.q)}</div>`;
  if(q.g=='mc')h+=q.o.map((o,j)=>`<button class="opt" onclick="pick(${j},this)">${'ABCD'[j]}. ${esc(o)}</button>`).join('');
  if(q.g=='tf')h+=`<button class="opt" onclick="pick(true,this)">Đúng</button><button class="opt" onclick="pick(false,this)">Sai</button>`;
  if(q.g=='voice'){h+=`<button onclick="mic()">🎤 Nói đáp án</button> <button class="alt" onclick="say(P.q[P.i].q)">Nghe lại câu hỏi</button><label>Hoặc gõ đáp án</label><input id="vt"><p><button class="alt" onclick="vcheck($('#vt').value)">Trả lời</button></p><p id="vs" class="mu"></p>`;say(q.q)}
  if(q.g=='fill')h+=`<input id="vt"><p><button onclick="vcheck($('#vt').value)">Trả lời</button></p>`;
- if(q.g=='scr'){const w=(q.k[0]||'').toUpperCase();let s=w;for(let t=0;t<9&&s==w&&w.length>2;t++)s=[...w].sort(()=>Math.random()-.5).join('');h+=`<div class="code">${esc(s)}</div><input id="vt"><p><button onclick="vcheck($('#vt').value)">Trả lời</button></p>`}
- if(q.g=='match'){P.defs=q.p.map(x=>x[1]).sort(()=>Math.random()-.5);h+=q.p.map((x,j)=>`<p><b>${esc(x[0])}</b><select id="mm${j}"><option value="">— chọn —</option>${P.defs.map(d=>`<option>${esc(d)}</option>`).join('')}</select></p>`).join('')+`<button onclick="mcheck()">Kiểm tra</button>`}
- if(q.g=='order'){P.sh=q.s.map((t,j)=>[t,j]).sort(()=>Math.random()-.5);P.ch=[];h+=`<p id="oc" class="mu">Bấm lần lượt theo đúng thứ tự:</p><div>${P.sh.map((x,j)=>`<button class="opt" onclick="opick(${j},this)">${esc(x[0])}</button>`).join('')}</div>`}
+ if(q.g=='scr'){const w=((q.k||[])[0]||'').toUpperCase();let s=w;for(let t=0;t<9&&s==w&&w.length>2;t++)s=shuf([...w]).join('');h+=`<div class="code">${esc(s)}</div><input id="vt"><p><button onclick="vcheck($('#vt').value)">Trả lời</button></p>`}
+ if(q.g=='match'){P.defs=shuf(q.p.map((x,j)=>[x[1],j]));h+=q.p.map((x,j)=>`<p><b>${esc(x[0])}</b><select id="mm${j}"><option value="">— chọn —</option>${P.defs.map(d=>`<option value="${d[1]}">${esc(d[0])}</option>`).join('')}</select></p>`).join('')+`<button onclick="mcheck()">Kiểm tra</button>`}
+ if(q.g=='order'){P.sh=shuf(q.s.map((t,j)=>[t,j]));P.ch=[];h+=`<p id="oc" class="mu">Bấm lần lượt theo đúng thứ tự:</p><div>${P.sh.map((x,j)=>`<button class="opt" onclick="opick(${j},this)">${esc(x[0])}</button>`).join('')}</div>`}
  $('#gm').innerHTML=h+'<p id="fb"></p>'}
-function res(f,msg){f=+f;const p=Math.round(10*f),ok=f>=1;P.score+=p;$('#fb').innerHTML=`<span class="${ok?'ok':'err'}">${ok?'Chính xác! +10':(p?'Đúng một phần, +'+p+'. ':'Chưa đúng. ')+esc(msg||'')}</span>`;say(ok?'Chính xác!':p?'Đúng một phần':'Chưa đúng');P.i++;setTimeout(showQ,1400)}
-function mcheck(){const q=P.q[P.i];let c=0;q.p.forEach((x,j)=>{if($('#mm'+j).value===x[1])c++});res(c/q.p.length,'Đáp án: '+q.p.map(x=>x[0]+' → '+x[1]).join('; '))}
+function res(f,msg){if(P.lock||P.done)return;P.lock=true;f=+f;const p=Math.round(10*f),ok=f>=1;P.score+=p;$('#fb').innerHTML=`<span class="${ok?'ok':'err'}">${ok?'Chính xác! +10':(p?'Đúng một phần, +'+p+'. ':'Chưa đúng. ')+esc(msg||'')}</span>`;say(ok?'Chính xác!':p?'Đúng một phần':'Chưa đúng');P.i++;setTimeout(showQ,1400)}
+function mcheck(){const q=P.q[P.i];let c=0;q.p.forEach((x,j)=>{if($('#mm'+j).value===String(j))c++});res(c/q.p.length,'Đáp án: '+q.p.map(x=>x[0]+' → '+x[1]).join('; '))}
 function opick(j,el){el.disabled=true;P.ch.push(P.sh[j]);$('#oc').textContent='Đã chọn: '+P.ch.map(x=>x[0]).join(' → ');if(P.ch.length==P.sh.length){const q=P.q[P.i],c=P.ch.filter((x,i)=>x[1]==i).length;res(c/P.sh.length,'Thứ tự đúng: '+q.s.join(' → '))}}
-function pick(v,el){const q=P.q[P.i];document.querySelectorAll('.opt').forEach(b=>b.disabled=true);const ok=v===q.a;el.classList.add(ok?'ok':'no');res(ok,q.g=='mc'?'Đáp án: '+'ABCD'[q.a]:'Đáp án: '+(q.a?'Đúng':'Sai'))}
+function pick(v,el){const q=P.q[P.i];document.querySelectorAll('.opt').forEach(b=>b.disabled=true);const ca=q.g=='mc'?(typeof q.a=='string'?'ABCD'.indexOf(q.a.trim().toUpperCase()[0]):+q.a):(q.a===true||q.a==='true'),ok=v===ca;el.classList.add(ok?'ok':'no');res(ok,q.g=='mc'?'Đáp án: '+'ABCD'[ca]:'Đáp án: '+(ca?'Đúng':'Sai'))}
 function mic(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R)return $('#vs').textContent='Trình duyệt chưa hỗ trợ nói, hãy gõ đáp án.';$('#vs').textContent='Đang nghe…';const r=new R();r.lang='vi-VN';r.onresult=e=>{const t=e.results[0][0].transcript;$('#vs').textContent='Em nói: '+t;vcheck(t)};r.onerror=()=>$('#vs').textContent='Không nghe rõ, hãy thử lại hoặc gõ đáp án.';try{r.start()}catch(e){}}
-function vcheck(t){const q=P.q[P.i];if(!norm(t))return;res((q.k||[]).some(k=>norm(t).includes(norm(k))),'Đáp án: '+(q.k||[])[0])}
-async function endGame(){clearInterval(T);await col('results').doc(P.rid).set({code:P.code,name:P.name,cls:P.cls,group:P.grp||'',score:P.score,kind:'game',at:Date.now()});
- const rs=(await col('results').where('code','==',P.code).get()).docs.map(d=>d.data()),g={};rs.forEach(r=>{if(r.group)g[r.group]=(g[r.group]||0)+r.score});
+function vcheck(t){const q=P.q[P.i];if(!norm(t))return;res(keys(q.k).some(k=>norm(t).includes(k)),'Đáp án: '+(q.k||[])[0])}
+async function endGame(){if(P.done)return;P.done=true;clearInterval(T);let rs=[];try{await col('results').doc(P.rid).set({code:P.code,name:P.name,cls:P.cls,group:P.grp||'',score:P.score,kind:'game',at:Date.now()});rs=(await col('results').where('code','==',P.code).get()).docs.map(d=>d.data())}catch(e){}
+ const g={};if(!rs.length)rs=[{name:P.name,score:P.score,group:P.grp||''}];rs.forEach(r=>r.score=+r.score||0);rs.forEach(r=>{if(r.group)g[r.group]=(g[r.group]||0)+r.score});
  A().innerHTML=`<div class="card"><h1>Hoàn thành! ${P.score} điểm</h1><h2>Bảng xếp hạng cá nhân</h2>${rs.sort((a,b)=>b.score-a.score).slice(0,10).map((r,i)=>`<p>${i+1}. ${esc(r.name)} — ${r.score}</p>`).join('')}${Object.keys(g).length?'<h2>Xếp hạng nhóm</h2>'+Object.entries(g).sort((a,b)=>b[1]-a[1]).map(([n,s])=>`<p>${esc(n)} — ${s}</p>`).join(''):''}${linkBox()}</div>`;say('Hoàn thành. Em được '+P.score+' điểm')}
 function runTest(){const d=P.d;let h=`<div class="clock"><span>${esc(P.name)}</span><span id="clk"></span></div>`;
  d.qs.forEach((q,i)=>{h+=`<div class="card"><b>Câu ${i+1}.</b> ${esc(q.q)}`;
@@ -323,15 +327,16 @@ function runTest(){const d=P.d;let h=`<div class="clock"><span>${esc(P.name)}</s
   if(q.t=='tf')h+=q.s.map((m,j)=>`<p>${'abcd'[j]}) ${esc(m.x)}<br><label style="display:inline"><input type="radio" name="s${i}_${j}" value="1"> Đúng</label> &nbsp; <label style="display:inline"><input type="radio" name="s${i}_${j}" value="0"> Sai</label></p>`).join('');
   if(q.t=='sa')h+=`<input id="a${i}" placeholder="Đáp án ngắn">`;if(q.t=='es')h+=`<textarea id="a${i}" rows="4"></textarea>`;h+='</div>'});
  A().innerHTML=h+'<p><button onclick="submitTest()">Nộp bài</button></p>';clock(submitTest)}
-async function submitTest(){clearInterval(T);const by={nb:[0,0],th:[0,0],vd:[0,0]};let e=0,tot=0;
+async function submitTest(){if(P.done)return;P.done=true;clearInterval(T);const by={nb:[0,0],th:[0,0],vd:[0,0]};let e=0,tot=0;
  P.d.qs.forEach((q,i)=>{const w=q.t=='es'?2:1;let f=0;
   if(q.t=='mc'){const v=document.querySelector(`[name=q${i}]:checked`);f=v&&+v.value===q.a?1:0}
   if(q.t=='tf'){q.s.forEach((m,j)=>{const v=document.querySelector(`[name=s${i}_${j}]:checked`);if(v&&(v.value=='1')===m.a)f+=1/q.s.length})}
-  if(q.t=='sa'){const v=norm($('#a'+i).value);f=v&&(q.k||[]).some(k=>norm(k)==v||v.includes(norm(k)))?1:0}
-  if(q.t=='es'){const v=norm($('#a'+i).value),k=q.k||[];f=k.length?Math.min(1,k.filter(x=>v.includes(norm(x))).length/Math.max(1,Math.ceil(k.length*.7))):0}
+  if(q.t=='sa'){const v=norm($('#a'+i).value);f=v&&keys(q.k).some(k=>k==v||v.includes(k))?1:0}
+  if(q.t=='es'){const v=norm($('#a'+i).value),k=keys(q.k);f=k.length?Math.min(1,k.filter(x=>v.includes(x)).length/Math.max(1,Math.ceil(k.length*.7))):0}
   e+=f*w;tot+=w;const l=by[q.l]?q.l:'nb';by[l][0]+=f*w;by[l][1]+=w});
  const s=Math.round(e/tot*100)/10;
- await col('results').doc(P.rid).set({code:P.code,name:P.name,cls:P.cls,score:s,by,kind:'test',at:Date.now()});
+ try{await col('results').doc(P.rid).set({code:P.code,name:P.name,cls:P.cls,score:s,by,kind:'test',at:Date.now()})}catch(er){P.done=false;alert('Chưa nộp được bài, hãy kiểm tra mạng rồi bấm Nộp bài lại. ('+(er.message||er)+')');return}
  A().innerHTML=`<div class="card"><h1>Điểm của em: ${s}/10</h1><p>${cm(s)}</p>${Object.keys(LV).map(k=>by[k][1]?`<p>${LV[k]}: ${Math.round(by[k][0]/by[k][1]*100)}% đúng</p>`:'').join('')}<p class="mu">Câu tự luận chấm theo từ khoá, giáo viên sẽ xem lại bài của em.</p>${linkBox()}</div>`}
+addEventListener('hashchange',()=>location.reload());
 boot();
 </script></body></html>
