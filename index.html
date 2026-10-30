@@ -129,12 +129,100 @@ function pre(){const m={a:{t:[8,1,2,0],l:[40,30,30],m:20},b:{t:[12,2,3,1],l:[40,
 function share(code,extra=''){const b=$('#base').value.replace(/#.*/,'');try{localStorage.base=b}catch(e){}const u=b+'#'+code;
  $('#share').innerHTML=`<div class="card"><h2>✅ Đã tạo xong</h2><p>Mã tham gia: <span class="code">${code}</span></p><input readonly value="${esc(u)}" onclick="this.select()"><div id="qr" class="qrbox"></div>${extra}<p class="mu">Học sinh quét QR hoặc mở link, nhập họ tên và lớp rồi vào chơi.</p></div>`;
  try{new QRCode($('#qr'),{text:u,width:150,height:150})}catch(e){}}
-async function ai(p){const body={prompt:p+await srcText()};let last='';
- for(let k=0;k<4;k++){const{data,error}=await SB.functions.invoke('generate',{body});const msg=error?await fe(error):(data&&data.error)||'';
-  if(!msg){let d=data;if(typeof d=='string'){try{d=JSON.parse(d.replace(/```json|```/g,'').trim())}catch(e){throw new Error('AI trả về sai định dạng, hãy thử lại')}}return d}
-  last=String(msg);if(!/high demand|overload|unavailable|503|429|quota|rate/i.test(last))break;
-  const b=$('#gb')||$('#tb');if(b)b.textContent='AI đang bận, tự thử lại lần '+(k+2)+'…';await new Promise(r=>setTimeout(r,3000*(k+1)))}
- throw new Error(/high demand|overload|unavailable|503/i.test(last)?'Máy chủ AI (Gemini) đang quá tải. Hệ thống đã tự thử lại nhiều lần, hãy đợi 1–2 phút rồi bấm tạo lại.':last)}
+
+// HÀM XỬ LÝ VÀ LÀM SẠCH CHUỖI JSON TRÁNH BAD CONTROL CHARACTER
+function cleanJsonString(str) {
+  let inString = false;
+  let isEscaped = false;
+  let out = '';
+  for (let i = 0; i < str.length; i++) {
+    const c = str[i];
+    if (c === '"' && !isEscaped) {
+      inString = !inString;
+      out += c;
+    } else if (inString) {
+      if (c === '\\') {
+        isEscaped = !isEscaped;
+        out += c;
+      } else {
+        isEscaped = false;
+        if (c === '\n') out += '\\n';
+        else if (c === '\r') out += '\\r';
+        else if (c === '\t') out += '\\t';
+        else if (c.charCodeAt(0) < 32) {
+          // Loại bỏ control characters không hợp lệ
+          out += ' ';
+        } else {
+          out += c;
+        }
+      }
+    } else {
+      isEscaped = false;
+      out += c;
+    }
+  }
+  return out;
+}
+
+function robustJsonParse(raw) {
+  if (typeof raw !== 'string') return raw;
+  let s = raw.trim().replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
+  
+  // Trích xuất khối JSON hợp lệ đầu tiên nếu có lời bình của AI
+  const firstBrace = s.indexOf('{');
+  const firstBracket = s.indexOf('[');
+  let start = -1, end = -1;
+  if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
+    start = firstBrace;
+    end = s.lastIndexOf('}');
+  } else if (firstBracket !== -1) {
+    start = firstBracket;
+    end = s.lastIndexOf(']');
+  }
+  if (start !== -1 && end !== -1 && end > start) {
+    s = s.slice(start, end + 1);
+  }
+
+  // Thử parse thông thường
+  try {
+    return JSON.parse(s);
+  } catch (err1) {
+    // Nếu có lỗi Bad control character hoặc newline thô trong string, tiến hành làm sạch
+    const cleaned = cleanJsonString(s);
+    try {
+      return JSON.parse(cleaned);
+    } catch (err2) {
+      // Thử loại bỏ dấu phẩy thừa trước dấu đóng ngoặc
+      const noTrailingComma = cleaned.replace(/,\s*([\]}])/g, '$1');
+      return JSON.parse(noTrailingComma);
+    }
+  }
+}
+
+async function ai(p){
+  const body={prompt: p + "\nLƯU Ý QUAN TRỌNG: Chỉ trả về JSON thuần túy, không định dạng markdown ```json, không thêm chữ giải thích bên ngoài. Tuyệt đối không để ký tự xuống dòng (raw newline) hay phím tab bên trong chuỗi giá trị (\"...\"), nếu cần xuống dòng hãy dùng \\n." + await srcText()};
+  let last='';
+ for(let k=0;k<4;k++){
+   const{data,error}=await SB.functions.invoke('generate',{body});
+   const msg=error?await fe(error):(data&&data.error)||'';
+  if(!msg){
+    let d=data;
+    try {
+      d = robustJsonParse(d);
+    } catch(e) {
+      throw new Error('AI trả về JSON sai cú pháp (' + e.message + '), hãy thử lại.');
+    }
+    return d;
+  }
+  last=String(msg);
+  if(!/high demand|overload|unavailable|503|429|quota|rate/i.test(last))break;
+  const b=$('#gb')||$('#tb');
+  if(b)b.textContent='AI đang bận, tự thử lại lần '+(k+2)+'…';
+  await new Promise(r=>setTimeout(r,3000*(k+1)));
+ }
+ throw new Error(/high demand|overload|unavailable|503/i.test(last)?'Máy chủ AI (Gemini) đang quá tải. Hệ thống đã tự thử lại nhiều lần, hãy đợi 1–2 phút rồi bấm tạo lại.':last);
+}
+
 async function mkGame(){
  const b=$('#gb');b.disabled=true;b.textContent='AI đang soạn…';
  try{const grade=$('#gr').value,les=LI.length?LI[+$('#gl').value].n:$('#gl2').value,mode=$('#gm').value,types=[...document.querySelectorAll('[name=gt]:checked')].map(x=>x.value),n=+$('#gq').value;
@@ -144,6 +232,7 @@ async function mkGame(){
  const code=rcode('G');await col('games').doc(code).set({code,grade,les,mode,types,qs:q,ng,time:+$('#gx').value,links:getLinks(),at:Date.now()});share(code)}
  catch(e){$('#share').innerHTML='<p class="err">Không tạo được: '+esc(e.message||e.code)+'</p>'}
  b.disabled=false;b.textContent='Tạo bằng AI và lấy link / QR'}
+
 async function mkTest(){
  const b=$('#tb');b.disabled=true;b.textContent='AI đang soạn đề…';
  try{const grade=$('#gr').value,LL=selLes(),les=LL.map(l=>l.n).join('; ');if(!les)throw{message:'Hãy chọn bài'};
@@ -154,6 +243,7 @@ async function mkTest(){
  window.LAST={code,grade,les,time,qs};share(code,'<p><button onclick="dlDoc()">📄 Tải đề + đáp án (Word)</button> <button class="alt" onclick="dlTest()">Tải dạng .txt</button></p>')}
  catch(e){$('#share').innerHTML='<p class="err">Không tạo được: '+esc(e.message||e.code)+'</p>'}
  b.disabled=false;b.textContent='Tạo đề bằng AI'}
+
 function txtTest(d){let i=0;return `ĐỀ KIỂM TRA TIN HỌC ${d.grade||''}\nNội dung: ${d.les}\nThời gian: ${d.time} phút\n\n`+d.qs.map(q=>{i++;let s=`Câu ${i} (${LV[q.l]||''}): ${q.q}\n`;if(q.t=='mc')s+=q.o.map((o,j)=>'  '+'ABCD'[j]+'. '+o).join('\n')+'\n';if(q.t=='tf')s+=q.s.map((m,j)=>'  '+'abcd'[j]+') '+m.x).join('\n')+'\n';return s}).join('\n')+'\n--- ĐÁP ÁN ---\n'+d.qs.map((q,i)=>`Câu ${i+1}: `+(q.t=='mc'?'ABCD'[q.a]:q.t=='tf'?q.s.map(m=>m.a?'Đ':'S').join(' '):(q.k||[]).join(' / '))).join('\n')}
 async function dlTest(){dl('de-kiem-tra-'+LAST.code+'.txt',txtTest(LAST))}
 const aTxt=q=>q.t=='mc'?'ABCD'[q.a]:q.t=='tf'?q.s.map((m,j)=>'abcd'[j]+'-'+(m.a?'Đ':'S')).join(', '):(q.k||[]).join(' / ');
@@ -197,7 +287,6 @@ const slug=x=>x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d
 let DSRC='',DERR='';
 const ext=n=>(n.match(/\.[^.]+$/)||[''])[0].toLowerCase(),nice=n=>n.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' ');
 
-// Bóc tách từng bài học từ Markdown (bắt chuẩn cả BÀI IN HOA, Bài thường, dấu hai chấm, dấu chấm)
 function splitMdIntoLessons(text, filePath, grade, defaultTitle, url) {
  if(!text) return [{title: defaultTitle, grade, kind:'md', path: filePath, url}];
  const lines = text.split('\n');
@@ -247,7 +336,6 @@ async function loadDocs(force){LDOCS=[];DC={};DSRC='';DERR='';const g=sgkRepo();
   const c=force?null:(()=>{try{return JSON.parse(sessionStorage.sgkc||'null')}catch(e){return null}})();
   if(c&&Date.now()-c.t<300000&&c.o==g.o+'/'+g.r){
    LDOCS=c.d;
-   
    DSRC='GitHub (nhớ tạm 5 phút)';
    return;
   }
@@ -350,36 +438,4 @@ function showQ(){if(P.done)return;P.lock=false;const q=P.q[P.i];if(!q)return end
  if(q.g=='mc')h+=q.o.map((o,j)=>`<button class="opt" onclick="pick(${j},this)">${'ABCD'[j]}. ${esc(o)}</button>`).join('');
  if(q.g=='tf')h+=`<button class="opt" onclick="pick(true,this)">Đúng</button><button class="opt" onclick="pick(false,this)">Sai</button>`;
  if(q.g=='voice'){h+=`<button onclick="mic()">🎤 Nói đáp án</button> <button class="alt" onclick="say(P.q[P.i].q)">Nghe lại câu hỏi</button><label>Hoặc gõ đáp án</label><input id="vt"><p><button class="alt" onclick="vcheck($('#vt').value)">Trả lời</button></p><p id="vs" class="mu"></p>`;say(q.q)}
- if(q.g=='fill')h+=`<input id="vt"><p><button onclick="vcheck($('#vt').value)">Trả lời</button></p>`;
- if(q.g=='scr'){const w=((q.k||[])[0]||'').toUpperCase();let s=w;for(let t=0;t<9&&s==w&&w.length>2;t++)s=shuf([...w]).join('');h+=`<div class="code">${esc(s)}</div><input id="vt"><p><button onclick="vcheck($('#vt').value)">Trả lời</button></p>`}
- if(q.g=='match'){P.defs=shuf(q.p.map((x,j)=>[x[1],j]));h+=q.p.map((x,j)=>`<p><b>${esc(x[0])}</b><select id="mm${j}"><option value="">— chọn —</option>${P.defs.map(d=>`<option value="${d[1]}">${esc(d[0])}</option>`).join('')}</select></p>`).join('')+`<button onclick="mcheck()">Kiểm tra</button>`}
- if(q.g=='order'){P.sh=shuf(q.s.map((t,j)=>[t,j]));P.ch=[];h+=`<p id="oc" class="mu">Bấm lần lượt theo đúng thứ tự:</p><div>${P.sh.map((x,j)=>`<button class="opt" onclick="opick(${j},this)">${esc(x[0])}</button>`).join('')}</div>`}
- $('#gm').innerHTML=h+'<p id="fb"></p>'}
-function res(f,msg){if(P.lock||P.done)return;P.lock=true;f=+f;const p=Math.round(10*f),ok=f>=1;P.score+=p;$('#fb').innerHTML=`<span class="${ok?'ok':'err'}">${ok?'Chính xác! +10':(p?'Đúng một phần, +'+p+'. ':'Chưa đúng. ')+esc(msg||'')}</span>`;say(ok?'Chính xác!':p?'Đúng một phần':'Chưa đúng');P.i++;setTimeout(showQ,1400)}
-function mcheck(){const q=P.q[P.i];let c=0;q.p.forEach((x,j)=>{if($('#mm'+j).value===String(j))c++});res(c/q.p.length,'Đáp án: '+q.p.map(x=>x[0]+' → '+x[1]).join('; '))}
-function opick(j,el){el.disabled=true;P.ch.push(P.sh[j]);$('#oc').textContent='Đã chọn: '+P.ch.map(x=>x[0]).join(' → ');if(P.ch.length==P.sh.length){const q=P.q[P.i],c=P.ch.filter((x,i)=>x[1]==i).length;res(c/P.sh.length,'Thứ tự đúng: '+q.s.join(' → '))}}
-function pick(v,el){const q=P.q[P.i];document.querySelectorAll('.opt').forEach(b=>b.disabled=true);const ca=q.g=='mc'?(typeof q.a=='string'?'ABCD'.indexOf(q.a.trim().toUpperCase()[0]):+q.a):(q.a===true||q.a==='true'),ok=v===ca;el.classList.add(ok?'ok':'no');res(ok,q.g=='mc'?'Đáp án: '+'ABCD'[ca]:'Đáp án: '+(ca?'Đúng':'Sai'))}
-function mic(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R)return $('#vs').textContent='Trình duyệt chưa hỗ trợ nói, hãy gõ đáp án.';$('#vs').textContent='Đang nghe…';const r=new R();r.lang='vi-VN';r.onresult=e=>{const t=e.results[0][0].transcript;$('#vs').textContent='Em nói: '+t;vcheck(t)};r.onerror=()=>$('#vs').textContent='Không nghe rõ, hãy thử lại hoặc gõ đáp án.';try{r.start()}catch(e){}}
-function vcheck(t){const q=P.q[P.i];if(!norm(t))return;res(keys(q.k).some(k=>norm(t).includes(k)),'Đáp án: '+(q.k||[])[0])}
-async function endGame(){if(P.done)return;P.done=true;clearInterval(T);let rs=[];try{await col('results').doc(P.rid).set({code:P.code,name:P.name,cls:P.cls,group:P.grp||'',score:P.score,kind:'game',at:Date.now()});rs=(await col('results').where('code','==',P.code).get()).docs.map(d=>d.data())}catch(e){}
- const g={};if(!rs.length)rs=[{name:P.name,score:P.score,group:P.grp||''}];rs.forEach(r=>r.score=+r.score||0);rs.forEach(r=>{if(r.group)g[r.group]=(g[r.group]||0)+r.score});
- A().innerHTML=`<div class="card"><h1>Hoàn thành! ${P.score} điểm</h1><h2>Bảng xếp hạng cá nhân</h2>${rs.sort((a,b)=>b.score-a.score).slice(0,10).map((r,i)=>`<p>${i+1}. ${esc(r.name)} — ${r.score}</p>`).join('')}${Object.keys(g).length?'<h2>Xếp hạng nhóm</h2>'+Object.entries(g).sort((a,b)=>b[1]-a[1]).map(([n,s])=>`<p>${esc(n)} — ${s}</p>`).join(''):''}${linkBox()}</div>`;say('Hoàn thành. Em được '+P.score+' điểm')}
-function runTest(){const d=P.d;let h=`<div class="clock"><span>${esc(P.name)}</span><span id="clk"></span></div>`;
- d.qs.forEach((q,i)=>{h+=`<div class="card"><b>Câu ${i+1}.</b> ${esc(q.q)}`;
-  if(q.t=='mc')h+=q.o.map((o,j)=>`<label><input type="radio" name="q${i}" value="${j}"> ${'ABCD'[j]}. ${esc(o)}</label>`).join('');
-  if(q.t=='tf')h+=q.s.map((m,j)=>`<p>${'abcd'[j]}) ${esc(m.x)}<br><label style="display:inline"><input type="radio" name="s${i}_${j}" value="1"> Đúng</label> &nbsp; <label style="display:inline"><input type="radio" name="s${i}_${j}" value="0"> Sai</label></p>`).join('');
-  if(q.t=='sa')h+=`<input id="a${i}" placeholder="Đáp án ngắn">`;if(q.t=='es')h+=`<textarea id="a${i}" rows="4"></textarea>`;h+='</div>'});
- A().innerHTML=h+'<p><button onclick="submitTest()">Nộp bài</button></p>';clock(submitTest)}
-async function submitTest(){if(P.done)return;P.done=true;clearInterval(T);const by={nb:[0,0],th:[0,0],vd:[0,0]};let e=0,tot=0;
- P.d.qs.forEach((q,i)=>{const w=q.t=='es'?2:1;let f=0;
-  if(q.t=='mc'){const v=document.querySelector(`[name=q${i}]:checked`);f=v&&+v.value===q.a?1:0}
-  if(q.t=='tf'){q.s.forEach((m,j)=>{const v=document.querySelector(`[name=s${i}_${j}]:checked`);if(v&&(v.value=='1')===m.a)f+=1/q.s.length})}
-  if(q.t=='sa'){const v=norm($('#a'+i).value);f=v&&keys(q.k).some(k=>k==v||v.includes(k))?1:0}
-  if(q.t=='es'){const v=norm($('#a'+i).value),k=keys(q.k);f=k.length?Math.min(1,k.filter(x=>v.includes(x)).length/Math.max(1,Math.ceil(k.length*.7))):0}
-  e+=f*w;tot+=w;const l=by[q.l]?q.l:'nb';by[l][0]+=f*w;by[l][1]+=w});
- const s=Math.round(e/tot*100)/10;
- try{await col('results').doc(P.rid).set({code:P.code,name:P.name,cls:P.cls,score:s,by,kind:'test',at:Date.now()})}catch(er){P.done=false;alert('Chưa nộp được bài, hãy kiểm tra mạng rồi bấm Nộp bài lại. ('+(er.message||er)+')');return}
- A().innerHTML=`<div class="card"><h1>Điểm của em: ${s}/10</h1><p>${cm(s)}</p>${Object.keys(LV).map(k=>by[k][1]?`<p>${LV[k]}: ${Math.round(by[k][0]/by[k][1]*100)}% đúng</p>`:'').join('')}<p class="mu">Câu tự luận chấm theo từ khoá, giáo viên sẽ xem lại bài của em.</p>${linkBox()}</div>`}
-addEventListener('hashchange',()=>location.reload());
-boot();
-</script></body></html>
+ if(q.g=='fill
